@@ -1,0 +1,263 @@
+﻿@model Grupo_Beira_Mar_Web_Application.Controllers.RelatorioClienteViewModel
+@{ ViewData["Title"] = "Relatório de Clientes"; }
+
+
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <h2 class="mb-4"><i class="fas fa-users me-2"></i>Relatório de Clientes</h2>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <form method="post" onsubmit="carregando()" >
+
+                    @Html.HiddenFor(m => m.Filtros.ExportaExcel)
+
+                    <div class="row col-md-12">
+
+                        <div class="col-md-1">
+                            <div class="form-group mb-3">
+                                <label class="col-sm-12 col-form-label">Cód. Cliente</label>
+                                <div class="col-sm-12">
+                                    @Html.TextBoxFor(m => m.Filtros.Codigo, new { @class = "form-control" })
+                                    @*<input asp-for="Nome" class="form-control" required />*@
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="col-sm-12 col-form-label">Nome Cliente</label>
+                                <div class="col-sm-12">
+                                    @Html.TextBoxFor(m => m.Filtros.Nome, new { @class = "form-control" })
+                                    @*<input asp-for="Nome" class="form-control" required />*@
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="col-sm-12 col-form-label">Endereço</label>
+                                <div class="col-sm-12">
+                                    @Html.TextBoxFor(m => m.Filtros.Endereco, new { @class = "form-control" })
+                                    @*<input asp-for="Nome" class="form-control" required />*@
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group mb-3">
+                                <label class="col-sm-12 col-form-label">Número Chip</label>
+                                <div class="col-sm-12">
+                                    @Html.TextBoxFor(m => m.Filtros.NumeroChip, new { @class = "form-control" })
+                                    @*<input asp-for="Nome" class="form-control" required />*@
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-1">
+                            <div class="form-group mb-3">
+                                <label class="col-sm-12 col-form-label">Status</label>
+                                <div class="col-sm-12">
+                                    @Html.DropDownListFor(m => m.Filtros.Status,
+                                                  Html.GetEnumSelectList(typeof(Grupo_Beira_Mar_Web_Application.Controllers.StatusType)),
+                                                  "Todos",
+                                                  new { @class = "form-control" })
+                                    @*<input asp-for="Nome" class="form-control" required />*@
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-1" style="align-content: end;text-align: center;">
+                            <div class="form-group mb-3">
+                                <button type="submit" class="btn btn-primary w-100"  onclick="$('#Filtros_ExportaExcel').val(false)">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-1" style="align-content: end;text-align: center;">
+                            <div class="form-group mb-3">
+
+                                
+                                <button type="submit" class="btn btn-success w-100" onclick="$('#Filtros_ExportaExcel').val(true)" title="Exporta para Excel">
+                                    <i class="fas fa-file-excel"></i>
+                                </button>
+
+                                @*<a title="Exportar para Excel"
+                                   href="@Url.Action("ExportarExcel", "RelatorioCliente", new {
+                                    Filtros = new {
+                                        Nome = Model.Filtros.Nome,
+                                        NumeroChip = Model.Filtros.NumeroChip,
+                                        EmailContato = Model.Filtros.EmailContato,
+                                        Status = Model.Filtros.Status
+                                    }
+                                })" class="btn btn-success w-100">
+                                    
+                                </a>*@
+                            </div>
+                        </div>
+
+                    </div>
+
+                    
+
+                </form>
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <h4 class="card-title">Consulta</h4>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+
+                    <div class="demo-spinner" id="divLoading">
+                        <button class="btn btn-primary" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                            <span role="status">Loading...</span>
+                        </button>
+                    </div>
+
+                    <table id="multi-filter-select" class="display table table-striped table-hover" style="display:none">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th>Endereço</th>
+                                <th>Telefone (Chip)</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th>Endereço</th>
+                                <th>Telefone (Chip)</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                            @foreach (var cliente in Model.Clientes)
+                            {
+                            <tr>
+                                <td>
+                                    <a href="/Cliente/Create/@cliente.IdCliente" target="_blank" class="btn btn-primary btn-round">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    @cliente.Codigo
+
+                                    @if (!cliente.Ativo.Value)
+                                    {
+                                        <i class="fas fa-ban" style="color: #f52b2bd1;font-size: xx-large;top: 7px;position: relative;"></i>
+                                    }
+                                </td>
+                                <td>@cliente.Nome</td>
+                                <td>@cliente.Endereco</td>
+                                <td>@cliente.NumeroChip</td>
+                                <td>@cliente.EmailContato</td>
+                                <td>@cliente.Status</td>
+                            </tr>}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts{
+
+    <script>
+
+        function carregando() {
+            swal({
+                title: 'Carregando...',
+                text: 'Por favor, aguarde.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+        }
+
+        document.onreadystatechange = function () {
+            if (document.readyState === "interactive") {
+                console.log("DOM pronto para interação");
+            }
+            if (document.readyState === "complete") {
+                console.log("Página totalmente carregada");
+            }
+        };
+
+        $(document).ready(function () {
+
+
+
+
+            $('#multi-filter-select').DataTable({
+                "pageLength": 5,
+                initComplete: function () {
+
+                    $('#divLoading').hide();
+                    $('#multi-filter-select').show();
+
+                    this.api().columns().every(function () {
+                        var column = this;
+                        var select = $('<select class="form-select"><option value=""></option></select>')
+                            .appendTo($(column.footer()).empty())
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+
+                        column.data().unique().sort().each(function (d, j) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        });
+                    });
+                }
+            });
+
+
+        });
+    </script>
+}

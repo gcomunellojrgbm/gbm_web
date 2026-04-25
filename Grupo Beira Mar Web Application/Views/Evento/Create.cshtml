@@ -1,0 +1,312 @@
+﻿@model Grupo_Beira_Mar_Web_Application.ViewModels.EventoViewModel
+@{
+    ViewData["Title"] = "Edição de Evento de Alarme";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">@ViewData["Title"]</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <!-- Projects table -->
+                <table class="table align-items-center mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Número Evento</th>
+                            <th scope="col">Conta</th>
+                            <th scope="col">Evento</th>
+                            <th scope="col"  class="text-end">Data Evento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>@(Model.IdEvento)</td>
+                            <td>@(Model.Conta)</td>
+                            <td>@(Model.TipoEventoDescricao)</td>
+                            <td class="text-end">@(Model.DataHoraEvento.Value.ToString("dd/MM/yyyy HH:mm:ss"))</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+
+
+            <form asp-action="Create" method="post">
+                <input type="hidden" asp-for="IdEvento" />
+                <input type="hidden" asp-for="IdEventoMonitoramento" />
+                <input type="hidden" asp-for="IdSMEAC" />
+                <input type="hidden" asp-for="EventoPendente" />
+                
+
+                <div class="row">
+
+                    <div class="col-md-12">
+
+                        <div class="card  card-outline mt-4">
+                            <div class="card-header">
+                                <h5 class="card-title">Atendimento</h5>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="form-group row mb-3">
+                                    <label asp-for="NumeroMonitoramento" class="col-sm-2 col-form-label">Número Monitoramento</label>
+                                    <div class="col-sm-4">
+                                        <input asp-for="NumeroMonitoramento" class="form-control" readonly />
+                                    </div>
+
+                                    <label asp-for="IdUsuarioAtendimento" class="col-sm-2 col-form-label">Usuário Atendimento</label>
+                                    <div class="col-sm-4">
+                                        <select asp-for="IdUsuarioAtendimento" asp-items="Model.Usuarios" class="form-select">
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group row mb-3">
+                                    <label asp-for="DataHoraInicioAtendimento" class="col-sm-2 col-form-label">Data Início</label>
+                                    <div class="col-sm-4">
+                                        <input asp-for="DataHoraInicioAtendimento" class="form-control" type="text" readonly />
+                                    </div>
+
+                                    <label asp-for="DataHoraTerminoAtendimento" class="col-sm-2 col-form-label">Data Término</label>
+                                    <div class="col-sm-4">
+                                        <input asp-for="DataHoraTerminoAtendimento" class="form-control" type="datetime-local" />
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group row mb-3">
+                                    <label asp-for="DescricaoMonitoramento" class="col-sm-2 col-form-label">Descrição Monitoramento</label>
+                                    <div class="col-sm-10">
+                                        <textarea asp-for="DescricaoMonitoramento" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <div class="col-sm-10 offset-sm-2">
+                                        <select asp-items="Model.DescricaoAtend" class="form-select" onchange="onDescricaoAtend_Change(this, $('#DescricaoMonitoramento'))">
+                                            <option value="">Selecione...</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row mb-3">
+                                    <div class="col-sm-2">
+                                        <div class="form-check">
+                                            <input asp-for="Atendimento" class="form-check-input" type="checkbox" />
+                                            <label asp-for="Atendimento" class="form-check-label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-check">
+                                            <input asp-for="AtivoAtendimento" class="form-check-input" type="checkbox" />
+                                            <label asp-for="AtivoAtendimento" class="form-check-label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-check">
+                                            <input asp-for="ConcluidoAtendimento" class="form-check-input" type="checkbox" />
+                                            <label asp-for="ConcluidoAtendimento" class="form-check-label">Concluído</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div class="card card-outline">
+                            <div class="card-header">
+                                <h5 class="card-title">Solicitação de Atendimento Alarme</h5>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="table-responsive">
+                                    <!-- Projects table -->
+                                    <table class="table align-items-center mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th scope="col">Número Solicitação</th>
+                                                <th scope="col">Data Início</th>
+                                                <th scope="col">Data Termino</th>
+                                                <th scope="col">Concluído</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>@(Model.NumeroSolicitacaoSMEAC)</td>
+                                                <td>@((Model.DataSolInicioSMEAC.HasValue)? Model.DataSolInicioSMEAC.Value.ToString("dd/MM/yyyy HH:mm:ss"): "")</td>
+                                                <td>@((Model.DataSolTerminoSMEAC.HasValue)? Model.DataSolTerminoSMEAC.Value.ToString("dd/MM/yyyy HH:mm:ss"): "")</td>
+                                                <td><input asp-for="ConcluidoSolSMEAC" class="form-check-input" type="checkbox" /></td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                @*<div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-info btn-sm">Concluir</button>
+                        </div>*@
+
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-12">
+
+                        <div class="card card-outline mt-4">
+                            <div class="card-header">
+                                <h5 class="card-title">Detalhes Solicitação de Atendimento Alarme</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="detalhesSMEACContainer">
+                                    @for (int i = 0; i < Model.DetalhesSMEAC.Count; i++)
+                                    {
+                                        Model.DetalhesSMEAC[i].PodeRemover = (i == Model.DetalhesSMEAC.Count - 1);
+
+                                    <partial name="_DetalhesSMEACRow" model="Model.DetalhesSMEAC[i]" view-data='new ViewDataDictionary(ViewData) { ["Index"] = i, ["Usuarios"] = Model.Usuarios, ["Veiculos"] = Model.Veiculos, ["DescricaoAtend"] = Model.DescricaoAtend}' />
+                                    }
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button" id="addDetalheSMEAC" class="btn btn-success btn-sm"><i class="fas fa-plus-circle"></i> Novo Detalhe</button>
+                                </div>
+
+                                @*<div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-info btn-sm me-2">Atualizar</button>
+                            <button type="button" class="btn btn-info btn-sm">Novo</button>
+                        </div>*@
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-success">Salvar Evento</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Script para exibir mensagens de notificação
+            @{ bool hasSuccessMsg = TempData["SuccessMessage"] != null; }
+            @{ bool hasErrorMsg = TempData["ErrorMessage"] != null; }
+
+            if (@(hasSuccessMsg ? "true" : "false")) {
+                $.notify({
+                    icon: 'icon-bell',
+                    title: 'Sucesso',
+                    message: '@(TempData["SuccessMessage"])',
+                }, {
+                    type: 'secondary',
+                    placement: {
+                        from: "top",
+                        align: "right"
+                    },
+                    time: 1000,
+                });
+            }
+            if (@(hasErrorMsg ? "true" : "false")) {
+                $.notify({
+                    icon: 'icon-bell',
+                    title: 'Erro',
+                    message: '@(TempData["ErrorMessage"])',
+                }, {
+                    type: 'danger',
+                    placement: {
+                        from: "top",
+                        align: "right"
+                    },
+                    time: 1000,
+                });
+            }
+
+            // Função para adicionar dinamicamente novas linhas de DetalhesSMEAC
+            var detalheIndex = @(Model.DetalhesSMEAC.Count); // Começa com o próximo índice disponível
+            $('#addDetalheSMEAC').click(function () {
+                $.ajax({
+                    url: '@Url.Action("AddDetalheSMEAC", "Evento")',
+                    type: 'POST',
+                    data: { index: detalheIndex }, // Passa o índice para a Partial View
+                    success: function (result) {
+                        $('#detalhesSMEACContainer').append(result);
+                        detalheIndex++;
+                        $('#addDetalheSMEAC').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Erro ao adicionar detalhe SMEAC:", error);
+                    }
+                });
+            });
+
+            // Adicione aqui qualquer script para campos de data/hora (ex: datepicker) se necessário
+            // Exemplo usando flatpickr (você precisaria incluir a biblioteca no seu layout)
+            //$("input[type='datetime-local']").flatpickr({
+            //    enableTime: true,
+            //    dateFormat: "d/m/Y H:i",
+            //    altInput: true,
+            //    altFormat: "d/m/Y H:i",
+            //    time_24hr: true,
+            //    allowInput: true
+            //});
+
+        });
+
+        function onDescricaoAtend_Change(dropDown, textArea) {
+
+            if($(dropDown).val() != ''){
+                if ($(textArea).text() != '') {
+                    $(textArea).append('\n');
+                }
+                $(textArea).append($(dropDown).find('option:selected').text());
+            }
+
+        }
+
+        //function onDescricaoAtend_Change(dropDown, textArea) {
+
+        //    if ($(dropDown).val() != '') {
+        //        if ($('#DescricaoMonitoramento').text() != '') {
+        //            $('#DescricaoMonitoramento').append('\n');
+        //        }
+        //        $('#DescricaoMonitoramento').append($(dropDown).find('option:selected').text());
+        //    }
+
+        //}
+
+    </script>
+}
