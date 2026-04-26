@@ -1,6 +1,7 @@
 using Grupo_Beira_Mar_Web_Application.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -63,8 +65,51 @@ namespace Grupo_Beira_Mar_Web_Application
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                
                 endpoints.MapRazorPages();
+
+                endpoints.MapGet("/env-view", async context =>
+                {
+                    var vars = Environment.GetEnvironmentVariables()
+                              .Cast<DictionaryEntry>()
+                              .OrderBy(e => e.Key.ToString());
+
+                    var config = Configuration.AsEnumerable()
+                                              .OrderBy(c => c.Key);
+
+                    var html = "<html><body>";
+
+                    html += "<h2>Environment Variables</h2>";
+                    html += "<table border='1'>";
+                    html += "<tr><th>Key</th><th>Value</th></tr>";
+
+                    foreach (DictionaryEntry item in vars)
+                    {
+                        html += $"<tr><td>{item.Key}</td><td>{item.Value}</td></tr>";
+                    }
+
+                    html += "</table>";
+
+                    html += "<br/><h2>Configuration (IConfiguration)</h2>";
+                    html += "<table border='1'>";
+                    html += "<tr><th>Key</th><th>Value</th></tr>";
+
+                    foreach (var item in config)
+                    {
+                        html += $"<tr><td>{item.Key}</td><td>{item.Value}</td></tr>";
+                    }
+
+                    html += "</table>";
+
+                    html += "</body></html>";
+
+                    context.Response.ContentType = "text/html";
+                    await context.Response.WriteAsync(html);
+                });
+
             });
+
+            
         }
     }
 }

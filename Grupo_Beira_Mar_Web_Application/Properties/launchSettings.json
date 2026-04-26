@@ -14,9 +14,9 @@
       //"launchUrl": "CallReceived?phoneNumber=51981947305&date=1753804304525",
       //"launchUrl": "Evento",
       //"launchUrl": "Evento/EventosPendentes",
-      "launchUrl": "Evento/Create/1636128",
+      //"launchUrl": "Evento/Create/1636128",
       //"launchUrl": "RelatorioCliente",
-      //"launchUrl": "RelatorioAlarme",
+      "launchUrl": "env-view",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
