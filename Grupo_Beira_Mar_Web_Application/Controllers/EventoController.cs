@@ -382,7 +382,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                       and EM.id_evento < {evento.IdEvento}
                 ";
 
-                var result = await _dbContext.Database.ExecuteSqlCommandAsync(SQL);
+                var result = await _dbContext.Database.ExecuteSqlRawAsync(SQL);
 
 
             }
