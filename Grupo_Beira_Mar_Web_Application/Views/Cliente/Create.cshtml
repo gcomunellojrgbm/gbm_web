@@ -1,0 +1,226 @@
+﻿@model Grupo_Beira_Mar_Web_Application.ViewModels.ClienteViewModel
+@{
+    ViewData["Title"] = "Cadastro de Cliente";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">@ViewData["Title"]</h4>
+        </div>
+        <div class="card-body">
+
+            <form asp-action="Create" method="post" onsubmit="load()">
+                <input type="hidden" asp-for="IdCliente" />
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group row mb-3">
+                            <label asp-for="Nome" class="col-sm-2 col-form-label">Nome Cliente</label>
+                            <div class="col-sm-10">
+                                <input asp-for="Nome" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="Codigo" class="col-sm-2 col-form-label">Código Cliente</label> <div class="col-sm-10">
+                                <input asp-for="Codigo" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="NomeContato" class="col-sm-2 col-form-label">Contato Cliente</label>
+                            <div class="col-sm-10">
+                                <input asp-for="NomeContato" class="form-control" />
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="Estado" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-2">
+                                <input asp-for="Estado" class="form-control" required />
+                            </div>
+
+                            <label asp-for="Cidade" class="col-sm-1 col-form-label"></label>
+                            <div class="col-sm-7">
+                                <input asp-for="Cidade" class="form-control" required />
+                            </div>
+
+                        </div>
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="Logadouro" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-7">
+                                <input asp-for="Logadouro" class="form-control" required />
+                            </div>
+                            <label asp-for="Complemento" class="col-sm-1 col-form-label">Compl.</label>
+                            <div class="col-sm-2">
+                                <input asp-for="Complemento" class="form-control" required />
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="Bairro" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-7">
+                                <input asp-for="Bairro" class="form-control" required />
+                            </div>
+                            <label asp-for="Cep" class="col-sm-1 col-form-label"></label>
+                            <div class="col-sm-2">
+                                <input asp-for="Cep" class="form-control" required />
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="TelefoneContato" class="col-sm-2 col-form-label">Tel. Cliente 1</label>
+                            <div class="col-sm-3">
+                                <input asp-for="TelefoneContato" class="form-control" />
+                            </div>
+
+                            <label asp-for="EmailContato" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-5">
+                                <input asp-for="EmailContato" class="form-control" />
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="Telefone2" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-3">
+                                <input asp-for="Telefone2" class="form-control" />
+                            </div>
+                            <label asp-for="Chaves" class="col-sm-2 col-form-label">Qtd. Chaves</label>
+                            <div class="col-sm-5">
+                                <input asp-for="Chaves" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="Telefone3" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-3">
+                                <input asp-for="Telefone3" class="form-control" />
+                            </div>
+                            <label asp-for="Senha" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-5">
+                                <input asp-for="Senha" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="SenhaContra" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-3">
+                                <input asp-for="SenhaContra" class="form-control" />
+                            </div>
+                            <label asp-for="Autorizacao" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-5">
+                                <input asp-for="Autorizacao" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="ProximidadeContato" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <input asp-for="ProximidadeContato" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="ObsContato" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <textarea asp-for="ObsContato" class="form-control"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="DataCadastro" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-3">
+                                <input asp-for="DataCadastro" class="form-control" />
+                            </div>
+                            <label asp-for="IdTipoCliente" class="col-sm-2 col-form-label">Tipo Cliente</label>
+                            <div class="col-sm-5">
+                                <select asp-for="IdTipoCliente" asp-items="Model.TiposCliente" class="form-select">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="Endereco2" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <input asp-for="Endereco2" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-3">
+                            <label asp-for="Cidade2" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-3">
+                                <input asp-for="Cidade2" class="form-control" />
+                            </div>
+                            <label asp-for="Cpf" class="col-sm-2 col-form-label">CPF</label>
+                            <div class="col-sm-5">
+                                <input asp-for="Cpf" class="form-control" />
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group row mb-3">
+
+                            <div class="col-sm-4 offset-sm-2">
+                                <div class="form-check">
+                                    <input asp-for="Ativo" class="form-check-input" type="checkbox" />
+                                    <label asp-for="Ativo" class="form-check-label"></label>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4 ">
+                                <div class="form-check">
+                                    <input asp-for="Inadimplente" class="form-check-input" type="checkbox" /> <label asp-for="Inadimplente" class="form-check-label"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-success" >Salvar</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+
+@section Scripts{
+
+<script>
+    function load() {
+        swal({
+            title: 'Processando...',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            onBeforeOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
+        
+    }
+</script>
+
+}

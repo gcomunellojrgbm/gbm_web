@@ -1,0 +1,230 @@
+﻿@model List<Grupo_Beira_Mar_Web_Application.ViewModels.EventoIndexViewModel>
+
+@{
+    
+}
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3">@(ViewData["Title"])</h3>
+    <ul class="breadcrumbs mb-3">
+        <li class="nav-home">
+            <a href="#">
+                <i class="icon-home"></i>
+            </a>
+        </li>
+        <li class="separator">
+            <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+            <a href="#">Monitoramento</a>
+        </li>
+        <li class="separator">
+            <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+            <a href="#">Eventos</a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <h4 class="card-title">Eventos Registrados</h4>
+                    
+                    
+                    <span id="eventosLoadingSpinner" class="spinner-border spinner-border-sm text-success d-none" style="margin-left: 10px" role="status" aria-hidden="true"></span>
+                    
+                    @* Opcional: Botão para adicionar novo evento, se houver essa funcionalidade *@
+                    @* <a asp-action="Create" class="btn btn-primary btn-round ms-auto">
+            <i class="fas fa-plus-circle"></i> Novo Evento
+        </a> *@
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <div class="demo-spinner" id="divLoading">
+                        <button class="btn btn-primary" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                            <span role="status">Carregando...</span>
+                        </button>
+                    </div>
+
+                    <table id="multi-filter-select" class="display table table-striped table-hover" style="display:none">
+                        <thead>
+                            <tr>
+                                <th></th> @* Coluna para o botão Editar *@
+                                <th>Número Evento</th>
+                                <th>Conta</th>
+                                <th>Nome Cliente</th> @* Este campo agora vem do EventoIndexViewModel *@
+                                <th>Data Evento</th>
+                                <th>Tipo Evento</th>
+                                <th>Grupo</th>
+                                <th>Zona</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>Número Evento</th>
+                                <th>Conta</th>
+                                <th>Nome Cliente</th>
+                                <th>Data Evento</th>
+                                <th>Tipo Evento</th>
+                                <th>Grupo</th>
+                                <th>Zona</th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                            @foreach (var evento in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-action="Create" asp-route-id="@evento.IdEvento" asp-route-eventopendente="true" class="btn btn-primary btn-round">
+                                            <i class="fas fa-edit"></i>
+                                            @(evento.QtdEvento)
+                                        </a>
+                                    </td>
+                                    <td>@(evento.NumeroEvento)</td>
+                                    <td>@(evento.Conta)</td>
+                                    <td>@(evento.NomeCliente ?? "N/A")</td> @* Exibe o NomeCliente do ViewModel *@
+                                    <td>@(evento.DataEvento?.ToString("dd/MM/yyyy HH:mm:ss"))</td>
+                                    <td>@(evento.TipoEvento)</td>
+                                    <td>@(evento.Grupo)</td>
+                                    <td>@(evento.Zona)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        @{ bool hasSuccessMsg = TempData["SuccessMessage"] != null; }
+        @{ bool hasErrorMsg = TempData["ErrorMessage"] != null; }
+
+        if (@(hasSuccessMsg ? "true" : "false")) {
+            $.notify({
+                icon: 'icon-bell',
+                title: 'Sucesso',
+                message: '@(TempData["SuccessMessage"])',
+            }, {
+                type: 'secondary',
+                placement: {
+                    from: "top",
+                    align: "right"
+                },
+                time: 1000,
+            });
+        }
+        if (@(hasErrorMsg ? "true" : "false")) {
+            $.notify({
+                icon: 'icon-bell',
+                title: 'Erro',
+                message: '@(TempData["ErrorMessage"])',
+            }, {
+                type: 'danger',
+                placement: {
+                    from: "top",
+                    align: "right"
+                },
+                time: 1000,
+            });
+        }
+
+        $(document).ready(function () {
+            $('#multi-filter-select').DataTable({
+                "pageLength": 5,
+                initComplete: function () {
+                    $('#divLoading').hide();
+                    $('#multi-filter-select').show();
+
+                    this.api().columns().every(function () {
+                        var column = this;
+                        var select = $('<select class="form-select"><option value=""></option></select>')
+                            .appendTo($(column.footer()).empty())
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+                        column.data().unique().sort().each(function (d, j) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        });
+                    });
+                }
+            });
+
+            // =========================================================
+            // Lógica para verificar novos eventos pendentes via AJAX
+            // =========================================================
+
+            // Pega todos os IdEvento da lista da Model e os converte para um array JavaScript
+            var lstIds = [@(string.Join(", ", Model.Select(e => e.IdEvento.ToString())))];
+
+            // Função para fazer a requisição AJAX
+            function checkEventosPendentes() {
+
+                //swal({
+                //    title: 'Verificando novos eventos...',
+                //    text: 'Por favor, aguarde.',
+                //    allowOutsideClick: false,
+                //    didOpen: () => {
+                //        Swal.showLoading();
+                //    }
+                //});
+
+                // Mostra o spinner ao lado do título
+                $('#eventosLoadingSpinner').removeClass('d-none');
+
+                $.ajax({
+                    url: '@Url.Action("CheckEventosPendentes", "Evento")',
+                    type: 'POST',
+                    //contentType: 'application/json; charset=utf-8', // Importante para enviar JSON
+                    //dataType: 'json', // Espera uma resposta JSON
+                    //headers: {
+                    //    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() // Inclui token anti-falsificação
+                    //},
+                    data: { eventosIds: lstIds }, // Converte o objeto JavaScript para JSON
+                    success: function (data) {
+                        //swal.close();
+                        setTimeout(() => {
+                            $('#eventosLoadingSpinner').addClass('d-none');
+                        }, 1000)
+
+                        if (data.qtdNovosEventoPendente != 0) {
+                            // Se houver novos eventos pendentes, recarrega a página
+                            location.reload();
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        //swal.close();
+                        console.error('Erro na requisição AJAX:', textStatus, errorThrown, jqXHR.responseText);
+                    }
+                });
+            }
+
+            // Chama a função checkEventosPendentes a cada 30 segundos (30000 milissegundos)
+            setInterval(checkEventosPendentes, 3000);
+
+            // Opcional: Chamar uma vez ao carregar a página também
+            checkEventosPendentes();
+        });
+
+        @*function checkEventosPendentes() {
+            var lstIds = [@(string.Join(", ", Model.Select(e => e.IdEvento.ToString())))];
+
+
+        }*@
+
+    </script>
+}

@@ -1,0 +1,700 @@
+﻿@model Grupo_Beira_Mar_Web_Application.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard de Monitoramento";
+}
+
+<div class="page-header">
+    <h3 class="fw-bold mb-3">Dashboard de Monitoramento</h3>
+    <ul class="breadcrumbs mb-3">
+        <li class="nav-home">
+            <a href="#">
+                <i class="icon-home"></i>
+            </a>
+        </li>
+        <li class="separator">
+            <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+            <a href="#">Home</a>
+        </li>
+        <li class="separator">
+            <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+            <a href="#">Dashboard</a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    @* =========================================================
+        // 1. Visão Geral (Cards de Indicadores Chave)
+        // ========================================================= *@
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-stats card-round">
+            <div class="card-body ">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-primary bubble-shadow-small">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">Eventos Hoje</p>
+                            <h4 class="card-title">@Model.TotalEventosRegistradosHoje</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-warning bubble-shadow-small">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">Pendentes Atendimento</p>
+                            <h4 class="card-title">@Model.EventosPendentesAtendimento</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-success bubble-shadow-small">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">Concluídos Hoje</p>
+                            <h4 class="card-title">@Model.EventosConcluidosHoje</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-info bubble-shadow-small">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">Tempo Médio Atend.</p>
+                            <h4 class="card-title">@Model.TempoMedioAtendimento.ToString(@"hh\:mm")</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    @* =========================================================
+        // 2. Estatísticas de Eventos - Gráfico de Linha: Eventos por Dia/Mês
+        // ========================================================= *@
+    <div class="col-md-6">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="card-head-row">
+                    <div class="card-title">Eventos por Período</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="min-height: 250px">
+                    <canvas id="eventosPorPeriodoChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* =========================================================
+        // 2. Estatísticas de Eventos - Gráfico de Barras: Eventos por Tipo/Grupo/Zona
+        // ========================================================= *@
+    <div class="col-md-6">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="card-head-row">
+                    <div class="card-title">Eventos por Tipo</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="min-height: 250px">
+                    <canvas id="eventosPorTipoChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    @* =========================================================
+        // 2. Estatísticas de Eventos - Gráfico de Pizza/Rosca: Status dos Eventos
+        // ========================================================= *@
+    <div class="col-md-4">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="card-head-row">
+                    <div class="card-title">Status dos Atendimentos</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="min-height: 200px">
+                    <canvas id="statusAtendimentosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* =========================================================
+        // 3. Desempenho do Atendimento - Gráfico de Barras: Atendimentos por Usuário
+        // ========================================================= *@
+    <div class="col-md-8">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="card-head-row">
+                    <div class="card-title">Atendimentos por Usuário</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="min-height: 250px">
+                    <canvas id="atendimentosPorUsuarioChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    @* =========================================================
+        // 3. Desempenho do Atendimento - Gráfico de Linha: Tempo de Resposta e Conclusão
+        // ========================================================= *@
+    <div class="col-md-6">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="card-head-row">
+                    <div class="card-title">Tempo Médio de Resposta e Conclusão (Minutos)</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="min-height: 250px">
+                    <canvas id="tempoRespostaConclusaoChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* =========================================================
+        // 4. Atividade de Campo - Gráfico de Barras: Ocorrências por Veículo Atendimento
+        // ========================================================= *@
+    <div class="col-md-6">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="card-head-row">
+                    <div class="card-title">Ocorrências por Veículo</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="min-height: 250px">
+                    <canvas id="ocorrenciasPorVeiculoChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    @* =========================================================
+        // 4. Atividade de Campo - Gráfico de Barras: Ocorrências por Vigilante Campo
+        // ========================================================= *@
+    <div class="col-md-6">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="card-head-row">
+                    <div class="card-title">Ocorrências por Vigilante de Campo</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="min-height: 250px">
+                    <canvas id="ocorrenciasPorVigilanteChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* =========================================================
+        // 5. Análise Geográfica - Gráfico de Barras: Eventos por Localização (Estado)
+        // ========================================================= *@
+    <div class="col-md-6">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="card-head-row">
+                    <div class="card-title">Eventos por Localização (Estados)</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="min-height: 250px">
+                    <canvas id="eventosPorLocalizacaoChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* =========================================================
+    // 4. Atividade de Campo - Tabela: Últimas Solicitações de Atendimento (SMEAC)
+    // ========================================================= *@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="card-head-row card-tools-still-right">
+                    <h4 class="card-title">Últimas Solicitações de Atendimento (SMEAC)</h4>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-items-center mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Número Solicitação</th>
+                                <th scope="col">Número Monitoramento</th>
+                                <th scope="col">Data Início</th>
+                                <th scope="col">Data Término</th>
+                                <th scope="col">Concluído</th>
+                                <th scope="col">Descrição Detalhe</th>
+                                <th scope="col">Vigilante Campo</th>
+                                <th scope="col">Veículo Atendimento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.UltimasSolicitacoesSMEAC != null && Model.UltimasSolicitacoesSMEAC.Any())
+                            {
+                                @foreach (var item in Model.UltimasSolicitacoesSMEAC)
+                                {
+                                    <tr>
+                                        <td>@item.NumeroSolicitacao</td>
+                                        <td>@item.NumeroMonitoramento</td>
+                                        <td>@item.DataInicioSolicitacao?.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@item.DataTerminoSolicitacao?.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@(item.ConcluidoSolicitacao ? "Sim" : "Não")</td>
+                                        <td>@item.DescricaoDetalhe</td>
+                                        <td>@item.VigilanteCampo</td>
+                                        <td>@item.VeiculoAtendimento</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center">Nenhuma solicitação de atendimento recente encontrada.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <!-- Core JS Files (from your template) -->
+    <script src="~/assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="~/assets/js/core/popper.min.js"></script>
+    <script src="~/assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery Scrollbar (from your template) -->
+    <script src="~/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+    <!-- Chart JS (from your template) -->
+    <script src="~/assets/js/plugin/chart.js/chart.min.js"></script>
+
+    <!-- Kaiadmin JS (from your template) -->
+    <script src="~/assets/js/kaiadmin.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // =========================================================
+            // 2. Estatísticas de Eventos - Gráfico de Linha: Eventos por Período
+            // =========================================================
+            var eventosPorPeriodoChartCtx = document.getElementById('eventosPorPeriodoChart').getContext('2d');
+            var eventosPorPeriodoChart = new Chart(eventosPorPeriodoChartCtx, {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.EventosPorPeriodoLabels)),
+                    datasets: [{
+                        label: "Eventos Registrados",
+                        borderColor: "#1d7af3",
+                        pointBorderColor: "#FFF",
+                        pointBackgroundColor: "#1d7af3",
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 4,
+                        pointHoverBorderWidth: 1,
+                        pointRadius: 4,
+                        backgroundColor: 'rgba(29, 122, 243, 0.25)', // Preenchimento suave
+                        fill: true,
+                        borderWidth: 2,
+                        data: @Html.Raw(Json.Serialize(Model.EventosPorPeriodoData))
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 10,
+                            fontColor: '#1d7af3',
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                fontColor: "rgba(0,0,0,0.5)",
+                                fontStyle: "500",
+                            },
+                            gridLines: {
+                                drawTicks: false,
+                                display: true // Exibe linhas de grade no eixo Y
+                            }
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                padding: 10,
+                                fontColor: "rgba(0,0,0,0.5)",
+                                fontStyle: "500"
+                            },
+                            gridLines: {
+                                zeroLineColor: "transparent"
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+
+            // =========================================================
+            // 2. Estatísticas de Eventos - Gráfico de Barras: Eventos por Tipo
+            // =========================================================
+            var eventosPorTipoChartCtx = document.getElementById('eventosPorTipoChart').getContext('2d');
+            var eventosPorTipoChart = new Chart(eventosPorTipoChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.EventosPorTipoLabels)),
+                    datasets: [{
+                        label: "Contagem de Eventos",
+                        backgroundColor: 'rgb(23, 125, 255)',
+                        borderColor: 'rgb(23, 125, 255)',
+                        data: @Html.Raw(Json.Serialize(Model.EventosPorTipoData)),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+
+            // =========================================================
+            // 2. Estatísticas de Eventos - Gráfico de Pizza/Rosca: Status dos Atendimentos
+            // =========================================================
+            var statusAtendimentosChartCtx = document.getElementById('statusAtendimentosChart').getContext('2d');
+            var statusAtendimentosChart = new Chart(statusAtendimentosChartCtx, {
+                type: 'doughnut', // Pode ser 'pie' ou 'doughnut'
+                data: {
+                    datasets: [{
+                        data: @Html.Raw(Json.Serialize(Model.EventosPorStatusData)),
+                        backgroundColor: ["#f3545d", "#59d05d", "#fdaf4b"], // Vermelho (não concluído), Verde (concluído), Amarelo (pendente)
+                        borderWidth: 0
+                    }],
+                    labels: @Html.Raw(Json.Serialize(Model.EventosPorStatusLabels))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            fontColor: 'rgb(154, 154, 154)',
+                            fontSize: 11,
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    pieceLabel: { // Plugin pieceLabel para mostrar porcentagens/valores
+                        render: 'percentage', // ou 'value'
+                        fontColor: 'white',
+                        fontSize: 14,
+                        // Necessário incluir o plugin Chart.PieceLabel.js para isso funcionar
+                        @*<script src="https://cdn.jsdelivr.net/npm/chart.piecelabel.js"></script>*@
+},
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                var label = data.labels[tooltipItem.index] || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += data.datasets[0].data[tooltipItem.index];
+                                return label;
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            left: 20,
+                            right: 20,
+                            top: 20,
+                            bottom: 20
+                        }
+                    }
+                }
+            });
+
+            // =========================================================
+            // 3. Desempenho do Atendimento - Gráfico de Barras: Atendimentos por Usuário
+            // =========================================================
+            var atendimentosPorUsuarioChartCtx = document.getElementById('atendimentosPorUsuarioChart').getContext('2d');
+            var atendimentosPorUsuarioChart = new Chart(atendimentosPorUsuarioChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.AtendimentosPorUsuarioLabels)),
+                    datasets: [{
+                        label: "Número de Atendimentos",
+                        backgroundColor: 'rgb(89, 208, 93)', // Cor verde
+                        borderColor: 'rgb(89, 208, 93)',
+                        data: @Html.Raw(Json.Serialize(Model.AtendimentosPorUsuarioData)),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+
+            // =========================================================
+            // 3. Desempenho do Atendimento - Gráfico de Linha: Tempo de Resposta e Conclusão
+            // =========================================================
+            var tempoRespostaConclusaoChartCtx = document.getElementById('tempoRespostaConclusaoChart').getContext('2d');
+            var tempoRespostaConclusaoChart = new Chart(tempoRespostaConclusaoChartCtx, {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.TempoRespostaConclusaoLabels)),
+                    datasets: [{
+                        label: "Tempo Médio de Resposta (Min)",
+                        borderColor: "#fdaf4b", // Laranja
+                        pointBorderColor: "#FFF",
+                        pointBackgroundColor: "#fdaf4b",
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 4,
+                        pointHoverBorderWidth: 1,
+                        pointRadius: 4,
+                        backgroundColor: 'rgba(253, 175, 75, 0.25)',
+                        fill: true,
+                        borderWidth: 2,
+                        data: @Html.Raw(Json.Serialize(Model.TempoRespostaData))
+                    },
+                    {
+                        label: "Tempo Médio de Conclusão (Min)",
+                        borderColor: "#1d7af3", // Azul
+                        pointBorderColor: "#FFF",
+                        pointBackgroundColor: "#1d7af3",
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 4,
+                        pointHoverBorderWidth: 1,
+                        pointRadius: 4,
+                        backgroundColor: 'rgba(29, 122, 243, 0.25)',
+                        fill: true,
+                        borderWidth: 2,
+                        data: @Html.Raw(Json.Serialize(Model.TempoConclusaoData))
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 10,
+                            fontColor: '#555',
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                fontColor: "rgba(0,0,0,0.5)",
+                                fontStyle: "500",
+                            },
+                            gridLines: {
+                                drawTicks: false,
+                                display: true
+                            }
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                padding: 10,
+                                fontColor: "rgba(0,0,0,0.5)",
+                                fontStyle: "500"
+                            },
+                            gridLines: {
+                                zeroLineColor: "transparent"
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+
+            // =========================================================
+            // 4. Atividade de Campo - Gráfico de Barras: Ocorrências por Veículo Atendimento
+            // =========================================================
+            var ocorrenciasPorVeiculoChartCtx = document.getElementById('ocorrenciasPorVeiculoChart').getContext('2d');
+            var ocorrenciasPorVeiculoChart = new Chart(ocorrenciasPorVeiculoChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.OcorrenciasPorVeiculoLabels)),
+                    datasets: [{
+                        label: "Número de Ocorrências",
+                        backgroundColor: 'rgb(113, 106, 202)', // Cor roxa
+                        borderColor: 'rgb(113, 106, 202)',
+                        data: @Html.Raw(Json.Serialize(Model.OcorrenciasPorVeiculoData)),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+
+            // =========================================================
+            // 4. Atividade de Campo - Gráfico de Barras: Ocorrências por Vigilante Campo
+            // =========================================================
+            var ocorrenciasPorVigilanteChartCtx = document.getElementById('ocorrenciasPorVigilanteChart').getContext('2d');
+            var ocorrenciasPorVigilanteChart = new Chart(ocorrenciasPorVigilanteChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.OcorrenciasPorVigilanteCampoLabels)),
+                    datasets: [{
+                        label: "Número de Ocorrências",
+                        backgroundColor: 'rgb(243, 84, 93)', // Cor vermelha
+                        borderColor: 'rgb(243, 84, 93)',
+                        data: @Html.Raw(Json.Serialize(Model.OcorrenciasPorVigilanteCampoData)),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+
+
+            // =========================================================
+            // 5. Análise Geográfica - Gráfico de Barras: Eventos por Localização (Estado)
+            // =========================================================
+            var eventosPorLocalizacaoChartCtx = document.getElementById('eventosPorLocalizacaoChart').getContext('2d');
+            var eventosPorLocalizacaoChart = new Chart(eventosPorLocalizacaoChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.EventosPorLocalizacaoLabels)),
+                    datasets: [{
+                        label: "Eventos por Estado",
+                        backgroundColor: 'rgb(255, 165, 52)', // Cor laranja
+                        borderColor: 'rgb(255, 165, 52)',
+                        data: @Html.Raw(Json.Serialize(Model.EventosPorLocalizacaoData)),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+
+
+    });
+    </script>
+}
