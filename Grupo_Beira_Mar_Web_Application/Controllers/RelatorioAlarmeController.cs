@@ -85,7 +85,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         private List<RelatorioAlarmeItemViewModel> ConsultaAlarmes(RelatorioAlarmeViewModel viewModel)
         {
             //var query = _context.Cliente.AsQueryable();
-
+            
 
             var query = (from e in _context.Evento
                                     // LEFT JOIN com ClienteMonitoramento via 'Conta'

@@ -129,6 +129,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                 {
                     IdCliente = c.IdCliente,
                     Codigo = c.Codigo,
+                    Particao = c.Particao,
                     Nome = c.Nome,
                     Endereco = c.Logadouro + ", " + c.Bairro + ", " + c.Cidade + " - " + c.Estado,
                     NumeroChip = c.TelefoneContato,
@@ -192,6 +193,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
     public class RelatorioClienteItemViewModel
     {
         public int IdCliente { get; set; }
+        public string Particao { get; set; }
         public string Nome { get; set; }
         public string Endereco { get; set; }
         public string NumeroChip { get; set; }
@@ -201,6 +203,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         public RelatorioClienteFiltrosViewModel Filtros { get; set; }
         public string Codigo { get; set; }
         public bool? Ativo { get; set; }
+        
     }
 
     public class RelatorioClienteFiltrosViewModel

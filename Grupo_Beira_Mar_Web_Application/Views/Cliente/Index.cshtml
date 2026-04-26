@@ -134,7 +134,7 @@
 
 
                                     </td>
-                                    <td>@(cliente.Codigo)</td>
+                                    <td nowrap>@(cliente.Codigo)@(String.IsNullOrEmpty(cliente.Particao) ? "" : $" - {cliente.Particao}")</td>
                                     <td>@(cliente.Nome)</td>
                                     <td>@(cliente.Logadouro)</td>
                                     <td>@(cliente.Complemento)</td>

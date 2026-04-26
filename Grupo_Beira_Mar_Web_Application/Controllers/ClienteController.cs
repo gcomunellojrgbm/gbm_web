@@ -53,6 +53,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                 {
                     model.IdCliente = cliente.IdCliente;
                     model.Codigo = cliente.Codigo;
+                    model.Particao = cliente.Particao;
                     model.Nome = cliente.Nome;
                     model.Estado = cliente.Estado;
                     model.Cidade = cliente.Cidade;
@@ -122,6 +123,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
             // Cliente
             cliente.Codigo = model.Codigo;
+            cliente.Particao = model.Particao;
             cliente.Nome = model.Nome;
             cliente.Estado = model.Estado;
             cliente.Cidade = model.Cidade;

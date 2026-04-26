@@ -11,6 +11,7 @@ namespace Grupo_Beira_Mar_Web_Application.DataModels
     {
         public int IdCliente { get; set; }
         public string Codigo { get; set; }
+        public string Particao { get; set; }
         public string Nome { get; set; }
         public string Estado { get; set; }
         public string Cidade { get; set; }
