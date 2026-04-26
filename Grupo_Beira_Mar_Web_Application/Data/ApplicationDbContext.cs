@@ -19,7 +19,6 @@ namespace Grupo_Beira_Mar_Web_Application.Data
            .OfType<Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension>()
            .FirstOrDefault()?.ConnectionString;
 
-            Console.WriteLine($"Connection string: {connectionString}");
         }
 
         public virtual DbSet<Aniversario> Aniversario { get; set; }
