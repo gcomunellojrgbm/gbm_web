@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <UserSecretsId>aspnet-Grupo_Beira_Mar_Web_Application-EAAB0D74-BBB3-4B6A-A490-B2DE0CC9169D</UserSecretsId>
     <RootNamespace>Grupo_Beira_Mar_Web_Application</RootNamespace>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
@@ -24,14 +24,17 @@
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
-    <PackageReference Include="EPPlus" Version="8.1.0" />
-    <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.23" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.23" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.23" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.23" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.23" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.23" />
+    <PackageReference Include="EPPlus" Version="8.5.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.26" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.26" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.26" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.26" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.26">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.26" />
   </ItemGroup>
 
 </Project>
