@@ -289,7 +289,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EventoViewModel model)
         {
-            return new JsonResult(model);
+            //return new JsonResult(model);
 
             // Recarrega os dropdowns em caso de erro de validação ANTES de remover os estados
             await carregaDadosDropDown(model);
