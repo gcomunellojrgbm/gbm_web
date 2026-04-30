@@ -1,24 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using Grupo_Beira_Mar_Web_Application.Models;
+﻿using ClosedXML.Excel;
 using Grupo_Beira_Mar_Web_Application.Data;
+using Grupo_Beira_Mar_Web_Application.Models;
+using Grupo_Beira_Mar_Web_Application.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using OfficeOpenXml;
 using System.IO;
-using ClosedXML.Excel;
-using System;
-using Grupo_Beira_Mar_Web_Application.ViewModels;
+using System.Linq;
 
 namespace Grupo_Beira_Mar_Web_Application.Controllers
 {
     public class RelatorioAlarmeController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _dbContext;
 
         public RelatorioAlarmeController(ApplicationDbContext context)
         {
-            _context = context;
+            _dbContext = context;
         }
 
         [HttpGet]
@@ -87,28 +88,36 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             //var query = _context.Cliente.AsQueryable();
             
 
-            var query = (from e in _context.Evento
-                                    // LEFT JOIN com ClienteMonitoramento via 'Conta'
-                                join cm in _context.ClienteMonitoramento on e.Conta equals cm.Conta into cmGroup
-                                from cm in cmGroup.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
-                                                                    // LEFT JOIN com Cliente via 'IdCliente' de ClienteMonitoramento
-                                join c in _context.Cliente on e.Conta equals c.Codigo into cGroup
-                                from c in cGroup//.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
-                                 orderby e.DataHora descending
-                                 select new EventoIndexViewModel
-                                 {
-                                     IdEvento = e.IdEvento,
-                                     NumeroEvento = e.IdEvento,
-                                     Conta = e.Conta,
-                                     NomeCliente = c.Nome, // Obtém o nome do cliente através do join
-                                     Endereco = (c.Logadouro + ", " + c.Bairro + ", " + c.Cidade + " - " + c.Estado),
-                                     NumeroChip = c.TelefoneContato,
-                                     DataEvento = e.DataHora,
-                                     TipoEvento = e.Evento1, // Mapeado para Tipo Evento na tela
-                                     Grupo = e.Grupo,
-                                     Zona = e.Zona
+            var query = (from Evento in _dbContext.Evento
+                             // LEFT JOIN com ClienteMonitoramento via 'Conta'
 
-                                 }
+                         join ClienteMonitoramento in _dbContext.ClienteMonitoramento
+                            on Evento.Conta equals ClienteMonitoramento.Conta //into cmGroup
+                                                                              //from cm in cmGroup.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
+                                                                              // LEFT JOIN com Cliente via 'IdCliente' de ClienteMonitoramento
+                         join Cliente in _dbContext.Cliente
+                            on Evento.Conta equals Cliente.Codigo //into cGroup
+                                                                  //from c in cGroup//.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
+                         join Receptora in _dbContext.Receptora
+                            on Cliente.IdReceptora equals Receptora.IdReceptora
+                         join EventoMonitoramento in _dbContext.EventoMonitoramento
+                            on Evento.IdEvento equals EventoMonitoramento.IdEvento //into emGroup
+                                                                                   //from em in emGroup.DefaultIfEmpty()
+                         where EventoMonitoramento.Concluido == false
+                         orderby Evento.DataHora descending
+                         select new EventoIndexViewModel
+                         {
+                             IdEvento = Evento.IdEvento,
+                             ReceptoraNome = Receptora.Nome,
+                             NumeroEvento = Evento.IdEvento,
+                             Conta = Cliente.Codigo + (String.IsNullOrEmpty(Cliente.Particao) ? "" : $" - {Cliente.Particao}"),
+                             NomeCliente = Cliente.Nome, // Obtém o nome do cliente através do join
+                             IdCliente = Cliente.IdCliente, // Obtém o nome do cliente através do join
+                             DataEvento = Evento.DataHora,
+                             TipoEvento = Evento.Evento1 // Mapeado para Tipo Evento na tela
+                                                         //Grupo = Evento.Grupo,
+                                                         //Zona = Evento.Zona
+                         }
                         )
                      //.Take(1000) // Limita para fins de demonstração e performance
                      .AsQueryable();

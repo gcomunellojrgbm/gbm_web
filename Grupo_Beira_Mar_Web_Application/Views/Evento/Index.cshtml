@@ -64,13 +64,12 @@
                         <tfoot>
                             <tr>
                                 <th></th>
-                                <th>Número Evento</th>
+                                <th>Receptora</th>
                                 <th>Conta</th>
                                 <th>Nome Cliente</th>
                                 <th>Data Evento</th>
                                 <th>Tipo Evento</th>
-                                <th>Grupo</th>
-                                <th>Zona</th>
+                                
                             </tr>
                         </tfoot>
                         <tbody>
@@ -82,13 +81,12 @@
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     </td>
-                                    <td>@(evento.NumeroEvento)</td>
+                                    <td>@(evento.ReceptoraNome)</td>
                                     <td>@(evento.Conta)</td>
                                     <td>@(evento.NomeCliente ?? "N/A")</td> @* Exibe o NomeCliente do ViewModel *@
                                     <td>@(evento.DataEvento?.ToString("dd/MM/yyyy HH:mm:ss"))</td>
                                     <td>@(evento.TipoEvento)</td>
-                                    <td>@(evento.Grupo)</td>
-                                    <td>@(evento.Zona)</td>
+                                    
                                 </tr>
                             }
                         </tbody>

@@ -23,11 +23,13 @@ namespace Grupo_Beira_Mar_Web_Application.ViewModels
         [Display(Name = "Tipo Evento")]
         public string TipoEvento { get; set; } // Mapeado para Evento1
 
-        public string Grupo { get; set; }
+        //public string Grupo { get; set; }
 
-        public string Zona { get; set; }
+        //public string Zona { get; set; }
         public int QtdEvento { get; set; }
         public string Endereco { get; set; }
-        public string NumeroChip { get; internal set; }
+        public string NumeroChip { get; set; }
+        public string ReceptoraNome { get; set; }
+        public int IdCliente { get; set; }
     }
 }

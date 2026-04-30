@@ -43,6 +43,14 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                     Text = t.Tipocliente1
                 }).ToListAsync();
 
+            model.Receptora = await _dbContext.Receptora
+                .Select(t => new SelectListItem
+                {
+                    Value = t.IdReceptora.ToString(),
+                    Text = t.Nome
+                }).ToListAsync();
+
+
             if (id.HasValue)
             {
                 var cliente = await _dbContext.Cliente.FindAsync(id);
@@ -68,6 +76,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                     model.ObsContato = cliente.ObsContato;
                     model.Ativo = (cliente.Ativo.HasValue)? cliente.Ativo.Value: false;
                     model.Inadimplente = (cliente.Inadimplente.HasValue)? cliente.Inadimplente.Value: false;
+                    model.IdReceptora = cliente.IdReceptora;
 
                     if (detalhe != null)
                     {
@@ -101,6 +110,14 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                         Value = t.IdTipoCliente.ToString(),
                         Text = t.Tipocliente1
                     }).ToListAsync();
+
+                model.Receptora = await _dbContext.Receptora
+                    .Select(t => new SelectListItem
+                    {
+                        Value = t.IdReceptora.ToString(),
+                        Text = t.Nome
+                    }).ToListAsync();
+
                 return View(model);
             }
 
@@ -138,6 +155,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             cliente.ObsContato = model.ObsContato;
             cliente.Ativo = model.Ativo;
             cliente.Inadimplente = model.Inadimplente;
+            cliente.IdReceptora = model.IdReceptora;
 
             await _dbContext.SaveChangesAsync(); // salva para obter IdCliente se novo
 

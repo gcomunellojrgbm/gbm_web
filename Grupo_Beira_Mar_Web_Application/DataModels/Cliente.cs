@@ -26,5 +26,8 @@ namespace Grupo_Beira_Mar_Web_Application.DataModels
         public string ObsContato { get; set; }
         public bool? Ativo { get; set; }
         public bool? Inadimplente { get; set; }
+
+        virtual public Receptora? Receptora { get; set; }
+        public int IdReceptora { get; set; }
     }
 }
