@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Grupo_Beira_Mar_Web_Application.Controllers
@@ -288,6 +289,8 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EventoViewModel model)
         {
+            return new JsonResult(model);
+
             // Recarrega os dropdowns em caso de erro de validação ANTES de remover os estados
             await carregaDadosDropDown(model);
 
