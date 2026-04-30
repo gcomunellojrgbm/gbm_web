@@ -78,12 +78,12 @@ namespace Grupo_Beira_Mar_Web_Application.ViewModels
 
         [Display(Name = "Data Hora Início")]
         [DataType(DataType.DateTime)]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm:ss}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}", ApplyFormatInEditMode = false)]
         public DateTime? DataHoraInicioAtendimento { get; set; }
 
         [Display(Name = "Data Hora Término")]
         [DataType(DataType.DateTime)]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}", ApplyFormatInEditMode = false)]
         public DateTime? DataHoraTerminoAtendimento { get; set; }
 
         [Display(Name = "Descrição Monitoramento")]
