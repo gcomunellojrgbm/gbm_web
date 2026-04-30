@@ -37,4 +37,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.26" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\lib\bootstrap\LICENSE">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

@@ -138,6 +138,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         }
 
         // Action para exibir o formulário de criação/edição de evento
+        [HttpGet]
         public async Task<IActionResult> Create(int? id, bool eventoPendente = false)
         {
             var model = new EventoViewModel();
