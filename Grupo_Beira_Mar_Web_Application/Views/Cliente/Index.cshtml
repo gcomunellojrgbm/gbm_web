@@ -77,6 +77,7 @@
                         <thead>
                             <tr>
                                 <th></th>
+                                <th>Receptora</th>
                                 <th>Codigo</th>
                                 <th>Nome</th>
                                 <th>Logadouro</th>
@@ -97,6 +98,7 @@
                         <tfoot>
                             <tr>
                                 <th></th>
+                                <th>Receptora</th>
                                 <th>Codigo</th>
                                 <th>Nome</th>
                                 <th>Logadouro</th>
@@ -134,6 +136,7 @@
 
 
                                     </td>
+                                    <td>@(cliente.Receptora.Nome)</td>
                                     <td nowrap>@(cliente.Codigo)@(String.IsNullOrEmpty(cliente.Particao) ? "" : $" - {cliente.Particao}")</td>
                                     <td>@(cliente.Nome)</td>
                                     <td>@(cliente.Logadouro)</td>

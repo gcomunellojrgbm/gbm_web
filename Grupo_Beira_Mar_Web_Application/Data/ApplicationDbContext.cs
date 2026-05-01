@@ -2599,6 +2599,11 @@ namespace Grupo_Beira_Mar_Web_Application.Data
 
                 entity.Property(e => e.GeraAtendimento)
                     .HasColumnName("gera_atendimento");
+                
+                entity.Property(e => e.DisparaSom)
+                    .HasColumnName("dispara_som");
+
+                
             });
 
             modelBuilder.Entity<ReceptoraAcao>()

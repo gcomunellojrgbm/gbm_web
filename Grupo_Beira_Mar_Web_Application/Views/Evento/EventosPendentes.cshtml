@@ -4,6 +4,8 @@
     
 }
 
+<audio id="idAlarmSound" src="~/assets/audio/alarme_01.mp3"></audio>
+
 <div class="page-header">
     <h3 class="fw-bold mb-3">@(ViewData["Title"])</h3>
     <ul class="breadcrumbs mb-3">
@@ -38,9 +40,9 @@
                     <span id="eventosLoadingSpinner" class="spinner-border spinner-border-sm text-success d-none" style="margin-left: 10px" role="status" aria-hidden="true"></span>
                     
                     @* Opcional: Botão para adicionar novo evento, se houver essa funcionalidade *@
-                    @* <a asp-action="Create" class="btn btn-primary btn-round ms-auto">
-            <i class="fas fa-plus-circle"></i> Novo Evento
-        </a> *@
+                    <a href="~/assets/img/help/sound_config.jpg" target="_blank" class="btn btn-primary btn-round ms-auto">
+                        <i class="fas fa-volume-up"></i> Configurar Som
+                    </a>
                 </div>
             </div>
             <div class="card-body">
@@ -103,6 +105,8 @@
 
 @section Scripts {
     <script>
+        var bAlarm = false;
+
         @{ bool hasSuccessMsg = TempData["SuccessMessage"] != null; }
         @{ bool hasErrorMsg = TempData["ErrorMessage"] != null; }
 
@@ -164,9 +168,12 @@
             // =========================================================
             // Lógica para verificar novos eventos pendentes via AJAX
             // =========================================================
+            
 
             // Pega todos os IdEvento da lista da Model e os converte para um array JavaScript
             var lstIds = [@(string.Join(", ", Model.Select(e => e.IdEvento.ToString())))];
+
+            @Html.Raw(Model.Count(o => o.DisparaSom) > 0 ? "bAlarm = true;disparaSom();" : "")
 
             // Função para fazer a requisição AJAX
             function checkEventosPendentes() {
@@ -217,6 +224,36 @@
             checkEventosPendentes();
         });
 
+
+        
+        function disparaSom(){
+            if(bAlarm){
+                idAlarmSound.play();
+
+                Swal.fire({
+                    title: '🚨 ATENÇÃO! 🚨',
+                    text: 'Existem Eventos Pendentes',
+                    
+                    confirmButtonText: 'Fechar',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showClass: {
+                        popup: 'animate__animated animate__zoomIn animate__faster'
+                    }
+                }).then((result) => {
+                    if (result) {
+                        pausaSom();
+                    }
+                });
+                setTimeout(disparaSom, 3000);
+            }
+            
+        }
+        
+        function pausaSom(){
+            idAlarmSound.pause();
+            bAlarm = false;
+        }
         @*function checkEventosPendentes() {
             var lstIds = [@(string.Join(", ", Model.Select(e => e.IdEvento.ToString())))];
 

@@ -71,7 +71,8 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                                      TipoEvento = EventoEstadoAcao != null? 
                                         $"{Evento.Evento1} - {EventoEstadoAcao.Decricao}": 
                                         Evento.Evento1,
-                                     GeraAtendimento = ReceptoraAcao != null? ReceptoraAcao.GeraAtendimento: false
+                                     GeraAtendimento = ReceptoraAcao != null? ReceptoraAcao.GeraAtendimento: false,
+                                     DisparaSom = ReceptoraAcao != null ? ReceptoraAcao.DisparaSom : false
                                  })
                                  .Take(1000) // Limita para fins de demonstração e performance
                                  .ToListAsync();
@@ -115,7 +116,8 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                                      NomeCliente = Cliente.Nome, // Obtém o nome do cliente através do join
                                      IdCliente = Cliente.IdCliente, // Obtém o nome do cliente através do join
                                      DataEvento = Evento.DataHora,
-                                     TipoEvento = $"{Evento.Evento1} - {EventoEstadoAcao.Decricao}" // Mapeado para Tipo Evento na tela
+                                     TipoEvento = $"{Evento.Evento1} - {EventoEstadoAcao.Decricao}", // Mapeado para Tipo Evento na tela
+                                     DisparaSom = ReceptoraAcao != null ? ReceptoraAcao.DisparaSom : false
                                  })
                                  .Take(1000) // Limita para fins de demonstração e performance
                                  .ToListAsync();

@@ -29,7 +29,9 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var clientes = await _dbContext.Cliente.ToListAsync();
+            var clientes = await _dbContext.Cliente
+                .Include(o => o.Receptora)
+                .ToListAsync();
             return View(clientes);
         }
 

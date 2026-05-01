@@ -12,6 +12,8 @@
 
         virtual public Receptora Receptora { get; set; }
 
-        public bool GeraAtendimento { get; internal set; }
+        public bool GeraAtendimento { get; set; }
+
+        public bool DisparaSom { get; set; }
     }
 }
