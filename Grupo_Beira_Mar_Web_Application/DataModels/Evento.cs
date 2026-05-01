@@ -21,7 +21,6 @@ namespace Grupo_Beira_Mar_Web_Application.DataModels
         public DateTime? DataHora { get; set; }
         public int? IdReceptora { get; set; }
         public int? QtdEventos { get; set; }
-
-       
+        public int? IdCliente { get; set; }
     }
 }

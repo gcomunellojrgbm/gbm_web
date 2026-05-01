@@ -4,6 +4,7 @@ using Grupo_Beira_Mar_Web_Application.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260430144507_Receptora")]
+    partial class Receptora
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -331,10 +334,6 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("estado");
 
-                    b.Property<int>("IdReceptora")
-                        .HasColumnType("int")
-                        .HasColumnName("id_receptora");
-
                     b.Property<bool?>("Inadimplente")
                         .HasColumnType("bit")
                         .HasColumnName("inadimplente");
@@ -381,8 +380,6 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                         .HasColumnName("telefone_contato");
 
                     b.HasKey("IdCliente");
-
-                    b.HasIndex("IdReceptora");
 
                     b.ToTable("cliente", (string)null);
                 });
@@ -1462,9 +1459,6 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("grupo");
 
-                    b.Property<int?>("IdCliente")
-                        .HasColumnType("int");
-
                     b.Property<int?>("IdFormato")
                         .HasColumnType("int")
                         .HasColumnName("id_formato");
@@ -1610,65 +1604,6 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                     b.HasKey("IdEventoCorteRede");
 
                     b.ToTable("evento_corte_rede", (string)null);
-                });
-
-            modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.EventoEstado", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CorAusente")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("cor_ausente");
-
-                    b.Property<string>("Descricao")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("descricao");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("evento_estado", (string)null);
-                });
-
-            modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.EventoEstadoAcao", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CodigoEvento")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("cod_evento");
-
-                    b.Property<string>("Cor")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("cor");
-
-                    b.Property<string>("Decricao")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("decricao");
-
-                    b.Property<int>("IdEventoEstado")
-                        .HasColumnType("int")
-                        .HasColumnName("id_evento_estado");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdEventoEstado");
-
-                    b.ToTable("evento_estado_acao", (string)null);
                 });
 
             modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.EventoLast", b =>
@@ -2217,36 +2152,6 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                     b.HasKey("IdReceptora");
 
                     b.ToTable("receptora", (string)null);
-                });
-
-            modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.ReceptoraAcao", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("GeraAtendimento")
-                        .HasColumnType("bit")
-                        .HasColumnName("gera_atendimento");
-
-                    b.Property<int>("IdEventoEstadoAcao")
-                        .HasColumnType("int")
-                        .HasColumnName("id_evento_estado_acao");
-
-                    b.Property<int>("IdReceptora")
-                        .HasColumnType("int")
-                        .HasColumnName("id_receptora");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdEventoEstadoAcao");
-
-                    b.HasIndex("IdReceptora");
-
-                    b.ToTable("receptora_acao", (string)null);
                 });
 
             modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.ReceptoraEvento", b =>
@@ -3363,17 +3268,6 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.Cliente", b =>
-                {
-                    b.HasOne("Grupo_Beira_Mar_Web_Application.DataModels.Receptora", "Receptora")
-                        .WithMany()
-                        .HasForeignKey("IdReceptora")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Receptora");
-                });
-
             modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.DetalhesSMEAC", b =>
                 {
                     b.HasOne("Grupo_Beira_Mar_Web_Application.DataModels.Usuario", "Usuario")
@@ -3389,17 +3283,6 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                     b.Navigation("Veiculo");
                 });
 
-            modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.EventoEstadoAcao", b =>
-                {
-                    b.HasOne("Grupo_Beira_Mar_Web_Application.DataModels.EventoEstado", "EventoEstado")
-                        .WithMany()
-                        .HasForeignKey("IdEventoEstado")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("EventoEstado");
-                });
-
             modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.EventoMonitoramento", b =>
                 {
                     b.HasOne("Grupo_Beira_Mar_Web_Application.DataModels.Usuario", "Usuario")
@@ -3407,25 +3290,6 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                         .HasForeignKey("IdUsuario");
 
                     b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.ReceptoraAcao", b =>
-                {
-                    b.HasOne("Grupo_Beira_Mar_Web_Application.DataModels.EventoEstadoAcao", "EventoEstadoAcao")
-                        .WithMany()
-                        .HasForeignKey("IdEventoEstadoAcao")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Grupo_Beira_Mar_Web_Application.DataModels.Receptora", "Receptora")
-                        .WithMany()
-                        .HasForeignKey("IdReceptora")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("EventoEstadoAcao");
-
-                    b.Navigation("Receptora");
                 });
 
             modelBuilder.Entity("Grupo_Beira_Mar_Web_Application.DataModels.ReceptoraEvento", b =>

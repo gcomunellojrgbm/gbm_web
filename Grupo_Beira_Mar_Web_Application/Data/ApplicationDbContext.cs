@@ -65,6 +65,8 @@ namespace Grupo_Beira_Mar_Web_Application.Data
         public virtual DbSet<ManutencaoDetalhe> ManutencaoDetalhe { get; set; }
         public virtual DbSet<MonitoramentoFeriado> MonitoramentoFeriado { get; set; }
         public virtual DbSet<PagamentoCliente> PagamentoCliente { get; set; }
+        public virtual DbSet<Receptora> Receptora { get; set; }
+        public virtual DbSet<ReceptoraEvento> ReceptoraEvento { get; set; }
         public virtual DbSet<ReceptoraMonitoramento> ReceptoraMonitoramento { get; set; }
         public virtual DbSet<Recibo> Recibo { get; set; }
         public virtual DbSet<Ronda> Ronda { get; set; }
@@ -88,6 +90,10 @@ namespace Grupo_Beira_Mar_Web_Application.Data
         public virtual DbSet<VeiculoGestao> VeiculoGestao { get; set; }
         public virtual DbSet<VeiculoPosicao> VeiculoPosicao { get; set; }
         public virtual DbSet<VeiculoPosicaoUsuario> VeiculoPosicaoUsuario { get; set; }
+
+        public virtual DbSet<EventoEstado> EventoEstado { get; set; }
+        public virtual DbSet<EventoEstadoAcao> EventoEstadoAcao { get; set; }
+        public virtual DbSet<ReceptoraAcao> ReceptoraAcao { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -520,6 +526,8 @@ namespace Grupo_Beira_Mar_Web_Application.Data
                     .HasColumnName("tipo_servico")
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                
             });
 
             modelBuilder.Entity<Cliente>(entity =>
@@ -606,7 +614,16 @@ namespace Grupo_Beira_Mar_Web_Application.Data
                     .HasColumnName("telefone_contato")
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.IdReceptora)
+                    .HasColumnName("id_receptora");
             });
+            
+            
+            modelBuilder.Entity<Cliente>()
+                .HasOne(em => em.Receptora)
+                .WithMany()
+                .HasForeignKey(em => em.IdReceptora);
 
             modelBuilder.Entity<ClienteArmadoPeriodo>(entity =>
             {
@@ -1838,6 +1855,37 @@ namespace Grupo_Beira_Mar_Web_Application.Data
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<Receptora>(entity =>
+            {
+                entity.HasKey(e => e.IdReceptora);
+
+                entity.ToTable("receptora");
+
+                entity.Property(e => e.Nome)
+                    .HasColumnName("nome")
+                    .HasMaxLength(50);
+
+            });
+
+            modelBuilder.Entity<ReceptoraEvento>(entity =>
+            {
+                entity.HasKey(e => e.IdEvento);
+
+                entity.ToTable("receptora_evento");
+
+                entity.Property(e => e.IdReceptora).HasColumnName("id_receptora");
+
+                entity.Property(e => e.Evento)
+                    .HasColumnName("evento")
+                    .HasMaxLength(200);
+
+            });
+            modelBuilder.Entity<ReceptoraEvento>()
+                .HasOne(em => em.Receptora)
+                .WithMany()
+                .HasForeignKey(em => em.IdReceptora);
+
+
             modelBuilder.Entity<ReceptoraMonitoramento>(entity =>
             {
                 entity.HasKey(e => e.IdReceptoraMonitoramento);
@@ -2483,6 +2531,86 @@ namespace Grupo_Beira_Mar_Web_Application.Data
                 .HasOne(ds => ds.Veiculo)
                 .WithMany()
                 .HasForeignKey(ds => ds.IdVeiculo);
+
+            //################################################
+
+            modelBuilder.Entity<EventoEstado>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("evento_estado");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id");
+
+                entity.Property(e => e.Descricao)
+                    .HasColumnName("descricao")
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.CorAusente)
+                    .HasColumnName("cor_ausente")
+                    .HasMaxLength(20);
+            });
+
+            modelBuilder.Entity<EventoEstadoAcao>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("evento_estado_acao");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id");
+
+                entity.Property(e => e.Decricao)
+                    .HasColumnName("decricao")
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Cor)
+                    .HasColumnName("cor")
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.CodigoEvento)
+                    .HasColumnName("cod_evento")
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.IdEventoEstado)
+                    .HasColumnName("id_evento_estado");
+            });
+
+            modelBuilder.Entity<EventoEstadoAcao>()
+                .HasOne(e => e.EventoEstado)
+                .WithMany()
+                .HasForeignKey(e => e.IdEventoEstado);
+
+            modelBuilder.Entity<ReceptoraAcao>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("receptora_acao");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id");
+
+                entity.Property(e => e.IdEventoEstadoAcao)
+                    .HasColumnName("id_evento_estado_acao");
+
+                entity.Property(e => e.IdReceptora)
+                    .HasColumnName("id_receptora");
+
+                entity.Property(e => e.GeraAtendimento)
+                    .HasColumnName("gera_atendimento");
+            });
+
+            modelBuilder.Entity<ReceptoraAcao>()
+                .HasOne(e => e.EventoEstadoAcao)
+                .WithMany()
+                .HasForeignKey(e => e.IdEventoEstadoAcao);
+
+            modelBuilder.Entity<ReceptoraAcao>()
+                .HasOne(e => e.Receptora)
+                .WithMany()
+                .HasForeignKey(e => e.IdReceptora);
+            //################################################
 
             // No seu ApplicationDbContext, no método OnModelCreating
 
