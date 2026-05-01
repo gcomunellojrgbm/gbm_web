@@ -33,5 +33,6 @@ namespace Grupo_Beira_Mar_Web_Application.ViewModels
         public int IdCliente { get; set; }
         public bool GeraAtendimento { get; set; }
         public bool DisparaSom { get; set; }
+        public string CorEvento { get; internal set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using Grupo_Beira_Mar_Web_Application.Data;
+using Grupo_Beira_Mar_Web_Application.DataModels;
 using Grupo_Beira_Mar_Web_Application.Models;
 using Grupo_Beira_Mar_Web_Application.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Grupo_Beira_Mar_Web_Application.Controllers
 {
@@ -24,12 +26,12 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
         [HttpGet]
         [HttpPost]
-        public IActionResult Index(
+        public async Task<IActionResult> IndexAsync(
             RelatorioAlarmeViewModel viewModel
             //,            string nome, string numeroChip, string emailContato, string status
             )
         {
-            List<RelatorioAlarmeItemViewModel> alarmes = ConsultaAlarmes(viewModel);
+            List<RelatorioAlarmeItemViewModel> alarmes = await ConsultaAlarmesAsync(viewModel);
 
             if ((bool)(viewModel.Filtros?.ExportaExcel))
             {
@@ -83,7 +85,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             }
         }
 
-        private List<RelatorioAlarmeItemViewModel> ConsultaAlarmes(RelatorioAlarmeViewModel viewModel)
+        private async Task<List<RelatorioAlarmeItemViewModel>> ConsultaAlarmesAsync(RelatorioAlarmeViewModel viewModel)
         {
             //var query = _context.Cliente.AsQueryable();
             
@@ -91,8 +93,8 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             var query = (from Evento in _dbContext.Evento
                              // LEFT JOIN com ClienteMonitoramento via 'Conta'
 
-                         join ClienteMonitoramento in _dbContext.ClienteMonitoramento
-                            on Evento.IdCliente equals ClienteMonitoramento.IdCliente //into cmGroup
+                         //join ClienteMonitoramento in _dbContext.ClienteMonitoramento
+                         //   on Evento.IdCliente equals ClienteMonitoramento.IdCliente //into cmGroup
                                                                               //from cm in cmGroup.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
                                                                               // LEFT JOIN com Cliente via 'IdCliente' de ClienteMonitoramento
                          join Cliente in _dbContext.Cliente
@@ -100,9 +102,14 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                                                                   //from c in cGroup//.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
                          join Receptora in _dbContext.Receptora
                             on Cliente.IdReceptora equals Receptora.IdReceptora
+
                          join EventoMonitoramento in _dbContext.EventoMonitoramento
                             on Evento.IdEvento equals EventoMonitoramento.IdEvento //into emGroup
                                                                                    //from em in emGroup.DefaultIfEmpty()
+                         join EventoEstadoAcao in _dbContext.EventoEstadoAcao
+                            on Evento.Evento1 equals EventoEstadoAcao.CodigoEvento into EventoEstadoAcaoGroup
+                            from EventoEstadoAcao in EventoEstadoAcaoGroup.DefaultIfEmpty()
+
                          where EventoMonitoramento.Concluido == true
                          orderby Evento.DataHora descending
                          select new EventoIndexViewModel
@@ -110,13 +117,13 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                              IdEvento = Evento.IdEvento,
                              ReceptoraNome = Receptora.Nome,
                              NumeroEvento = Evento.IdEvento,
-                             Conta = Cliente.Codigo + (String.IsNullOrEmpty(Cliente.Particao) ? "" : $" - {Cliente.Particao}"),
+                             Conta = Cliente.Codigo + (String.IsNullOrEmpty(Cliente.Particao) ? "" : " - " + Cliente.Particao),
                              NomeCliente = Cliente.Nome, // Obtém o nome do cliente através do join
                              IdCliente = Cliente.IdCliente, // Obtém o nome do cliente através do join
                              DataEvento = Evento.DataHora,
-                             TipoEvento = Evento.Evento1 // Mapeado para Tipo Evento na tela
-                                                         //Grupo = Evento.Grupo,
-                                                         //Zona = Evento.Zona
+                             TipoEvento = Evento.Evento1 + (EventoEstadoAcao.Decricao != null? " - " + EventoEstadoAcao.Decricao: ""),
+                             CorEvento = (EventoEstadoAcao.Cor != null? EventoEstadoAcao.Cor: "black"),
+                             NumeroChip = Cliente.TelefoneContato
                          }
                         )
                      //.Take(1000) // Limita para fins de demonstração e performance
@@ -154,7 +161,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             }
 
 
-            var clientes = query
+            var clientes = await query
                 .Select(c => new RelatorioAlarmeItemViewModel
                 {
                     //IdCliente = c.Conta,
@@ -163,23 +170,25 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                     Nome = c.NomeCliente,
                     Endereco = c.Endereco,
                     NumeroChip = c.NumeroChip,
-                    DataEvento = c.DataEvento
+                    DataEvento = c.DataEvento,
+                    Evento = c.TipoEvento,
+                    CorEvento = c.CorEvento
                     //EmailContato = c.EmailContato,
                     //Ativo = c.Ativo,
                     //Status = (bool)c.Ativo ? "Ativo" : "Inativo"
                 })
                 .OrderByDescending(c => c.DataEvento)
                 .Take(10000)
-                .ToList();
+                .ToListAsync();
 
             return clientes;
         }
 
 
 
-        public IActionResult ExportarExcel(RelatorioAlarmeViewModel viewModel)
+        public async Task<IActionResult> ExportarExcelAsync(RelatorioAlarmeViewModel viewModel)
         {
-            List<RelatorioAlarmeItemViewModel> clientes = ConsultaAlarmes(viewModel);
+            List<RelatorioAlarmeItemViewModel> clientes = await ConsultaAlarmesAsync(viewModel);
 
             using var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add("Clientes");
@@ -238,6 +247,8 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         public bool? Ativo { get; set; }
         public DateTime? DataEvento { get; set; }
         public int IdEvento { get; set; }
+        public string Evento { get; internal set; }
+        public string CorEvento { get; internal set; }
     }
 
     public class RelatorioAlarmeFiltrosViewModel

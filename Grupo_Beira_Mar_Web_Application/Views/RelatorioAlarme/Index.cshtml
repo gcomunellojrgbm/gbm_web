@@ -156,6 +156,7 @@
                             <tr>
                                 <th></th>
                                 <th>Data</th>
+                                <th>Evento</th>
                                 <th>Código</th>
                                 <th>Nome</th>
                                 <th>Endereço</th>
@@ -168,6 +169,7 @@
                             <tr>
                                 <th></th>
                                 <th>Data</th>
+                                <th>Evento</th>
                                 <th>Código</th>
                                 <th>Nome</th>
                                 <th>Endereço</th>
@@ -186,6 +188,7 @@
                                     </a>
                                 </td>
                                 <td>@(alarme.DataEvento.Value.ToString("dd/MM/yyyy HH:mm:ss"))</td>
+                                <td><i class="fas fa-info-circle" style="color:@(alarme.CorEvento)"></i> @alarme.Evento</td>
                                 <td>@alarme.Codigo</td>
                                 <td>@alarme.Nome</td>
                                 <td>@alarme.Endereco</td>
