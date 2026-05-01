@@ -43,7 +43,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                     .AddYears(1969) // ano Linux começa em 1970
                     .AddMilliseconds(Double.Parse(date))    //soma os milisegundos informados
                     .AddHours(-3); // corrige para o fuso do BR
-                var Evento = "R130";
+                var Evento = "E130";
                 var idReceptora = 1;
 
                 await CriarEvento(client, dtEvento, Evento, idReceptora);
