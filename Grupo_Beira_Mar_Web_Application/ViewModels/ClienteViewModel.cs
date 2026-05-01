@@ -44,6 +44,7 @@ namespace Grupo_Beira_Mar_Web_Application.ViewModels
 
         // Dropdown
         public List<SelectListItem> TiposCliente { get; set; }
-        
+        public List<SelectListItem> Receptora { get; set; }
+        public int IdReceptora { get; set; }
     }
 }

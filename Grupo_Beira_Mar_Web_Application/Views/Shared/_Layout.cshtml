@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var isDev = Environment.GetEnvironmentVariables()["ASPNETCORE_ENVIRONMENT"].ToString() == "Development";
+
+    Console.WriteLine(isDev);
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -26,6 +31,13 @@
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="/assets/css/demo.css">
+    <style>
+        .label-version {
+            color: #b9babf !important;
+            font-weight: bold;
+            font-size: 18px !important;
+        }
+    </style>
 </head>
 <body>
     <div class="wrapper">
@@ -35,8 +47,8 @@
                 <!-- Logo Header -->
                 <div class="logo-header" data-background-color="dark">
 
-                    <a href="index.html" class="logo">
-                        <img src="/assets/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand" height="20">&nbsp;&nbsp;&nbsp;&nbsp;<label>v2.0</label>
+                    <a href="/" class="logo">
+                        <img src="/assets/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand" height="20">&nbsp;&nbsp;&nbsp;&nbsp;<label class="label-version">v2.1@(isDev ? " [DEV]" :"")</label>
                     </a>
                     <div class="nav-toggle">
                         <button class="btn btn-toggle toggle-sidebar">
