@@ -32,21 +32,32 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         {
             // Modificado para usar JOINs explícitos e um ViewModel específico para a listagem
             var eventos = await (from Evento in _dbContext.Evento
-                                     // LEFT JOIN com ClienteMonitoramento via 'Conta'
-
-                                 join ClienteMonitoramento in _dbContext.ClienteMonitoramento
-                                    on Evento.Conta equals ClienteMonitoramento.Conta //into cmGroup
-                                                                                      //from cm in cmGroup.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
-                                                                                      // LEFT JOIN com Cliente via 'IdCliente' de ClienteMonitoramento
                                  join Cliente in _dbContext.Cliente
-                                    on Evento.Conta equals Cliente.Codigo //into cGroup
-                                 //from c in cGroup//.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
+                                    on Evento.IdCliente equals Cliente.IdCliente //into cGroup
                                  join Receptora in _dbContext.Receptora
                                     on Cliente.IdReceptora equals Receptora.IdReceptora
                                  join EventoMonitoramento in _dbContext.EventoMonitoramento
                                     on Evento.IdEvento equals EventoMonitoramento.IdEvento //into emGroup
-                                 //from em in emGroup.DefaultIfEmpty()
-                                 where EventoMonitoramento.Concluido == false
+
+                                 join EventoEstadoAcao in _dbContext.EventoEstadoAcao
+                                    on Evento.Evento1 equals EventoEstadoAcao.CodigoEvento
+                                    into eventoEstadoAcaoGroup
+                                 from EventoEstadoAcao in eventoEstadoAcaoGroup.DefaultIfEmpty()
+
+                                 join ReceptoraAcao in _dbContext.ReceptoraAcao
+                                    on new
+                                    {
+                                        IdReceptora = Receptora.IdReceptora,
+                                        IdEventoEstadoAcao = (int?)EventoEstadoAcao.Id
+                                    }
+                                    equals new
+                                    {
+                                        IdReceptora = ReceptoraAcao.IdReceptora,
+                                        IdEventoEstadoAcao = (int?)ReceptoraAcao.IdEventoEstadoAcao
+                                    }
+                                    into receptoraAcaoGroup
+                                 from ReceptoraAcao in receptoraAcaoGroup.DefaultIfEmpty()
+
                                  orderby Evento.DataHora descending
                                  select new EventoIndexViewModel
                                  {
@@ -57,9 +68,10 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                                      NomeCliente = Cliente.Nome, // Obtém o nome do cliente através do join
                                      IdCliente = Cliente.IdCliente, // Obtém o nome do cliente através do join
                                      DataEvento = Evento.DataHora,
-                                     TipoEvento = Evento.Evento1 // Mapeado para Tipo Evento na tela
-                                     //Grupo = Evento.Grupo,
-                                     //Zona = Evento.Zona
+                                     TipoEvento = EventoEstadoAcao != null? 
+                                        $"{Evento.Evento1} - {EventoEstadoAcao.Decricao}": 
+                                        Evento.Evento1,
+                                     GeraAtendimento = ReceptoraAcao != null? ReceptoraAcao.GeraAtendimento: false
                                  })
                                  .Take(1000) // Limita para fins de demonstração e performance
                                  .ToListAsync();
@@ -80,23 +92,19 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         {
             // Modificado para usar JOINs explícitos e um ViewModel específico para a listagem
             var eventos = await (from Evento in _dbContext.Evento
-                                     // LEFT JOIN com ClienteMonitoramento via 'Conta'
-
-                                 //join ClienteMonitoramento in _dbContext.ClienteMonitoramento 
-                                 //   on Evento.Conta equals ClienteMonitoramento.Conta //into cmGroup
-                                 //from cm in cmGroup.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
-                                                                     // LEFT JOIN com Cliente via 'IdCliente' de ClienteMonitoramento
                                  join Cliente in _dbContext.Cliente 
                                     on Evento.IdCliente equals Cliente.IdCliente //into cGroup
-                                 //from c in cGroup//.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
                                  join Receptora in _dbContext.Receptora
                                     on Cliente.IdReceptora equals Receptora.IdReceptora 
                                  join EventoMonitoramento in _dbContext.EventoMonitoramento 
                                     on Evento.IdEvento equals EventoMonitoramento.IdEvento //into emGroup
+                                 join ReceptoraAcao in _dbContext.ReceptoraAcao
+                                    on Receptora.IdReceptora equals ReceptoraAcao.IdReceptora
                                  join EventoEstadoAcao in _dbContext.EventoEstadoAcao
-                                    on Evento.Evento1 equals EventoEstadoAcao.CodigoEvento
-                                 //from em in emGroup.DefaultIfEmpty()
+                                    on Evento.Evento1 equals EventoEstadoAcao.CodigoEvento 
                                  where EventoMonitoramento.Concluido == false
+                                    && ReceptoraAcao.IdEventoEstadoAcao == EventoEstadoAcao.Id
+                                    && ReceptoraAcao.GeraAtendimento == true
                                  orderby Evento.DataHora descending
                                  select new EventoIndexViewModel
                                  {
@@ -108,8 +116,6 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                                      IdCliente = Cliente.IdCliente, // Obtém o nome do cliente através do join
                                      DataEvento = Evento.DataHora,
                                      TipoEvento = $"{Evento.Evento1} - {EventoEstadoAcao.Decricao}" // Mapeado para Tipo Evento na tela
-                                     //Grupo = Evento.Grupo,
-                                     //Zona = Evento.Zona
                                  })
                                  .Take(1000) // Limita para fins de demonstração e performance
                                  .ToListAsync();

@@ -92,18 +92,18 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                              // LEFT JOIN com ClienteMonitoramento via 'Conta'
 
                          join ClienteMonitoramento in _dbContext.ClienteMonitoramento
-                            on Evento.Conta equals ClienteMonitoramento.Conta //into cmGroup
+                            on Evento.IdCliente equals ClienteMonitoramento.IdCliente //into cmGroup
                                                                               //from cm in cmGroup.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
                                                                               // LEFT JOIN com Cliente via 'IdCliente' de ClienteMonitoramento
                          join Cliente in _dbContext.Cliente
-                            on Evento.Conta equals Cliente.Codigo //into cGroup
+                            on Evento.IdCliente equals Cliente.IdCliente //into cGroup
                                                                   //from c in cGroup//.DefaultIfEmpty() // DefaultIfEmpty para LEFT JOIN
                          join Receptora in _dbContext.Receptora
                             on Cliente.IdReceptora equals Receptora.IdReceptora
                          join EventoMonitoramento in _dbContext.EventoMonitoramento
                             on Evento.IdEvento equals EventoMonitoramento.IdEvento //into emGroup
                                                                                    //from em in emGroup.DefaultIfEmpty()
-                         where EventoMonitoramento.Concluido == false
+                         where EventoMonitoramento.Concluido == true
                          orderby Evento.DataHora descending
                          select new EventoIndexViewModel
                          {

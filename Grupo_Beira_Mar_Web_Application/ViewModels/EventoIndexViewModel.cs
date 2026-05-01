@@ -31,5 +31,6 @@ namespace Grupo_Beira_Mar_Web_Application.ViewModels
         public string NumeroChip { get; set; }
         public string ReceptoraNome { get; set; }
         public int IdCliente { get; set; }
+        public bool GeraAtendimento { get; set; }
     }
 }

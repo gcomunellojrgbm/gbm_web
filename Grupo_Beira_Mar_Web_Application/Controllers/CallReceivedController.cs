@@ -142,8 +142,8 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
 
                     //Abre o atendimento
-                    if (configEvento.ReceptoraAcao.GeraAtendimento)
-                    {
+                    //if (configEvento.ReceptoraAcao.GeraAtendimento)
+                    //{
                         var client = await _dbContext.Cliente.FirstOrDefaultAsync(c => c.IdReceptora.Equals(idReceptora) && c.Codigo.Equals(codigoCliente));
 
                         if (client == null)
@@ -154,7 +154,8 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                         {
                             await CriarEvento(client, DateTime.Now, evento, idReceptora);
                         }
-                    }
+                    //}
+
                 }
                 return Ok();
             }catch(Exception ex)
