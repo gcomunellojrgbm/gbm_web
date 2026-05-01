@@ -110,7 +110,6 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                             on Evento.Evento1 equals EventoEstadoAcao.CodigoEvento into EventoEstadoAcaoGroup
                             from EventoEstadoAcao in EventoEstadoAcaoGroup.DefaultIfEmpty()
 
-                         where EventoMonitoramento.Concluido == true
                          orderby Evento.DataHora descending
                          select new EventoIndexViewModel
                          {
