@@ -1420,7 +1420,14 @@ namespace Grupo_Beira_Mar_Web_Application.Data
                     .HasColumnName("zona")
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.IdEventoEstado).HasColumnName("id_evento_estado");
             });
+
+            modelBuilder.Entity<Evento>()
+                .HasOne(em => em.EventoEstado)
+                .WithMany()
+                .HasForeignKey(em => em.IdEventoEstado);
 
             modelBuilder.Entity<EventoArme>(entity =>
             {

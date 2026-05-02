@@ -22,5 +22,8 @@ namespace Grupo_Beira_Mar_Web_Application.DataModels
         public int? IdReceptora { get; set; }
         public int? QtdEventos { get; set; }
         public int? IdCliente { get; set; }
+
+        virtual public EventoEstado EventoEstado { get; set; }
+        public int? IdEventoEstado { get; set; }
     }
 }

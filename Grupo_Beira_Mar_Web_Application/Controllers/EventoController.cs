@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -68,10 +69,10 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                                      NomeCliente = Cliente.Nome, // Obtém o nome do cliente através do join
                                      IdCliente = Cliente.IdCliente, // Obtém o nome do cliente através do join
                                      DataEvento = Evento.DataHora,
-                                     TipoEvento = EventoEstadoAcao != null? 
-                                        $"{Evento.Evento1} - {EventoEstadoAcao.Decricao}": 
+                                     TipoEvento = EventoEstadoAcao != null ?
+                                        $"{Evento.Evento1} - {EventoEstadoAcao.Decricao}" :
                                         Evento.Evento1,
-                                     GeraAtendimento = ReceptoraAcao != null? ReceptoraAcao.GeraAtendimento: false,
+                                     GeraAtendimento = ReceptoraAcao != null ? ReceptoraAcao.GeraAtendimento : false,
                                      DisparaSom = ReceptoraAcao != null ? ReceptoraAcao.DisparaSom : false
                                  })
                                  .Take(1000) // Limita para fins de demonstração e performance
@@ -84,25 +85,31 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
         public async Task<IActionResult> EventosPendentes()
         {
-            List<EventoIndexViewModel> eventosFiltrados = await BuscaEventosPendentes();
+            EventosPendentesViewModel eventosPendentes = new EventosPendentesViewModel()
+            {
+                EventosPendentes = await BuscaEventosPendentes(),
+                ResumoFKS = await BuscaResumoFKS()
+            };
 
-            return View(eventosFiltrados);
+            
+
+            return View(eventosPendentes);
         }
 
         private async Task<List<EventoIndexViewModel>> BuscaEventosPendentes()
         {
             // Modificado para usar JOINs explícitos e um ViewModel específico para a listagem
             var eventos = await (from Evento in _dbContext.Evento
-                                 join Cliente in _dbContext.Cliente 
+                                 join Cliente in _dbContext.Cliente
                                     on Evento.IdCliente equals Cliente.IdCliente //into cGroup
                                  join Receptora in _dbContext.Receptora
-                                    on Cliente.IdReceptora equals Receptora.IdReceptora 
-                                 join EventoMonitoramento in _dbContext.EventoMonitoramento 
+                                    on Cliente.IdReceptora equals Receptora.IdReceptora
+                                 join EventoMonitoramento in _dbContext.EventoMonitoramento
                                     on Evento.IdEvento equals EventoMonitoramento.IdEvento //into emGroup
                                  join ReceptoraAcao in _dbContext.ReceptoraAcao
                                     on Receptora.IdReceptora equals ReceptoraAcao.IdReceptora
                                  join EventoEstadoAcao in _dbContext.EventoEstadoAcao
-                                    on Evento.Evento1 equals EventoEstadoAcao.CodigoEvento 
+                                    on Evento.Evento1 equals EventoEstadoAcao.CodigoEvento
                                  where EventoMonitoramento.Concluido == false
                                     && ReceptoraAcao.IdEventoEstadoAcao == EventoEstadoAcao.Id
                                     && ReceptoraAcao.GeraAtendimento == true
@@ -112,7 +119,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                                      IdEvento = Evento.IdEvento,
                                      ReceptoraNome = Receptora.Nome,
                                      NumeroEvento = Evento.IdEvento,
-                                     Conta = Cliente.Codigo + (String.IsNullOrEmpty(Cliente.Particao)? "": $" - {Cliente.Particao}"),
+                                     Conta = Cliente.Codigo + (String.IsNullOrEmpty(Cliente.Particao) ? "" : $" - {Cliente.Particao}"),
                                      NomeCliente = Cliente.Nome, // Obtém o nome do cliente através do join
                                      IdCliente = Cliente.IdCliente, // Obtém o nome do cliente através do join
                                      DataEvento = Evento.DataHora,
@@ -126,7 +133,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
             var eventosFiltrados = new List<EventoIndexViewModel>();
 
-            var eventosAgrupados = eventos.GroupBy(g => new { g.IdCliente , g.TipoEvento})
+            var eventosAgrupados = eventos.GroupBy(g => new { g.IdCliente, g.TipoEvento })
                 .Select(s =>
                     new
                     {
@@ -152,17 +159,15 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         public async Task<IActionResult> CheckEventosPendentesAsync(List<int> eventosIds)
         {
 
-            //var qtdNovosEventoPendente = _dbContext.EventoMonitoramento
-            //    .Count(em =>
-            //        (em.Concluido.HasValue && !em.Concluido.Value && !eventosIds.Contains(em.IdEvento)) ||
-            //        (em.Concluido.HasValue && em.Concluido.Value && eventosIds.Contains(em.IdEvento))
-            //    );
-
             List<EventoIndexViewModel> eventosFiltrados = await BuscaEventosPendentes();
 
             var qtdNovosEventoPendente = eventosFiltrados.Count(e => !eventosIds.Contains(e.IdEvento));
+            var qtdNovosEventoPendenteDisparaSom = eventosFiltrados.Count(e => !eventosIds.Contains(e.IdEvento) && e.DisparaSom);
 
-            return Ok(new { qtdNovosEventoPendente = qtdNovosEventoPendente });
+            return Ok(new { 
+                qtdNovosEventoPendente = qtdNovosEventoPendente ,
+                qtdNovosEventoPendenteDisparaSom = qtdNovosEventoPendenteDisparaSom
+            });
         }
 
         // Action para exibir o formulário de criação/edição de evento
@@ -349,7 +354,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                 TempData["ErrorMessage"] = "Evento não encontrado para edição.";
                 return RedirectToAction("Index");
             }
-            
+
 
             // ===============================================
             // Salvar EventoMonitoramento
@@ -373,7 +378,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
             //Verifica se a data de término não foi informada e se o atendimento está sendo concluído, então registra a data de término
             if (!model.DataHoraTerminoAtendimento.HasValue &&
-                (!eventoMonitoramento.Concluido.HasValue || (eventoMonitoramento.Concluido.HasValue && !eventoMonitoramento.Concluido.Value)) && 
+                (!eventoMonitoramento.Concluido.HasValue || (eventoMonitoramento.Concluido.HasValue && !eventoMonitoramento.Concluido.Value)) &&
                 model.ConcluidoAtendimento
                 )
             {
@@ -442,9 +447,9 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             }
 
             smeac.IdEventoMonitoramento = eventoMonitoramento.IdEventoMonitoramento; // Vincula ao EventoMonitoramento
-            
+
             //Verifica se a solicitação está sendo concluída e registra a data de termino
-            if((!smeac.ConcluidoSol.HasValue ||(smeac.ConcluidoSol.HasValue && !smeac.ConcluidoSol.Value)) && model.ConcluidoSolSMEAC)
+            if ((!smeac.ConcluidoSol.HasValue || (smeac.ConcluidoSol.HasValue && !smeac.ConcluidoSol.Value)) && model.ConcluidoSolSMEAC)
             {
                 smeac.DataSolTermino = DateTime.UtcNow.AddHours(-3);
             }
@@ -519,7 +524,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             {
                 return RedirectToAction("Index");
             }
-            
+
         }
 
         // Action para adicionar um novo item de DetalhesSMEAC via AJAX
@@ -548,5 +553,102 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             // Retorna uma partial view com um novo item de DetalhesSMEACViewModel
             return PartialView("_DetalhesSMEACRow", new DetalhesSMEACViewModel());
         }
+
+        public async Task<List<ResumoFKSViewModel>> BuscaResumoFKS()
+        {
+            StringBuilder sql = new StringBuilder();
+
+            sql.Append(@"
+                Declare @id_evento_estado int = 1
+
+                Select 
+	                EE.id id_evento_estado,
+					EE.descricao grupo_evento,
+	                EEA.decricao,
+	                EEA.cor,
+	                0 Qtd
+                Into #TMP
+                from evento_estado EE
+                Inner Join evento_estado_acao EEA
+	                On EEA.id_evento_estado = EE.id
+                Group By 
+	                EE.id,
+					EE.descricao,
+	                EEA.decricao,
+	                EEA.cor
+	
+
+                While @id_evento_estado <= 6
+                Begin
+	                Declare @EE_descricao nvarchar(50)
+	                Declare @EE_cor_ausente nvarchar(50)
+
+	                Select 
+		                @EE_descricao = EE.descricao,
+		                @EE_cor_ausente = EE.cor_ausente
+	                From evento_estado EE
+	                Where EE.id = @id_evento_estado
+
+	                Insert Into #TMP(id_evento_estado, grupo_evento, decricao, cor, Qtd)
+	                Select 
+		                E.id_evento_estado,
+		                @EE_descricao,
+						EEA.decricao,
+		                EEA.cor,
+		                count(*) Qtd
+	                From evento E
+	                Inner Join evento_estado_acao EEA
+		                On EEA.cod_evento = E.evento
+	                Where E.id_receptora = 2 -- FKS
+		                and E.id_evento_estado = @id_evento_estado
+		                and Not Exists( -- Onde não existe outro evento do mesmo cliente e grupo de eventos mais recente
+		                Select Top 1 1
+		                From evento E2
+		                Where E2.IdCliente = E.IdCliente
+			                and E2.id_evento_estado = @id_evento_estado
+			                and E2.data_hora > E.data_hora
+		                )
+	                Group By E.id_evento_estado,
+		                E.evento,
+		                EEA.decricao,
+		                EEA.cor
+
+	                Set @id_evento_estado = @id_evento_estado + 1
+                End
+
+                Select 
+	                T.id_evento_estado,
+					T.grupo_evento,
+	                T.decricao,
+	                T.cor,
+	                SUM(T.Qtd) Qtd
+                From #TMP T
+                Group By T.id_evento_estado,
+	                T.grupo_evento,
+					T.decricao,
+	                T.cor
+                Order By T.id_evento_estado,
+	                T.cor Desc
+
+                Drop Table #TMP
+
+            ");
+
+            // Use the explicit type argument for SqlQueryRaw
+            var query = _dbContext.Database.SqlQueryRaw<ResumoFKSViewModel>(sql.ToString());
+
+            // If you want to execute and get the results as a list:
+            return await query.ToListAsync();
+        }
+    }
+
+    // 1. Define a result class for your query (place this in an appropriate namespace/file if reused elsewhere):
+    public class ResumoFKSViewModel
+    {
+        public int id_evento_estado { get; set; }
+        public string grupo_evento { get; set; }
+        public string decricao { get; set; }
+        public string cor { get; set; }
+        public int Qtd { get; set; }
     }
 }

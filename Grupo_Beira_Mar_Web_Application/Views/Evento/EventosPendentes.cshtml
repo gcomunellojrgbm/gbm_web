@@ -1,13 +1,15 @@
-﻿@model List<Grupo_Beira_Mar_Web_Application.ViewModels.EventoIndexViewModel>
+﻿@model Grupo_Beira_Mar_Web_Application.ViewModels.EventosPendentesViewModel
 
 @{
     
 }
 
+
+
 <audio id="idAlarmSound" src="~/assets/audio/alarme_01.mp3"></audio>
 
 <div class="page-header">
-    <h3 class="fw-bold mb-3">@(ViewData["Title"])</h3>
+    <h3 class="fw-bold mb-3">Monitoramento de Eventos</h3>
     <ul class="breadcrumbs mb-3">
         <li class="nav-home">
             <a href="#">
@@ -29,12 +31,63 @@
     </ul>
 </div>
 
+<!-- CARDS DE RESUMO -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="event-summary-wrapper">
+            
+            <h4 style="margin-left: 10px;">Indicadores da Receptora FKS</h4>
+
+            <div class="row event-summary-row g-3">
+                @{
+                    String[] lstCSSs = new String[] { "alarm", "panic", "connected", "energy", "battery", "disarmed" };
+                    String[] lstIcon = new String[] { "bell", "exclamation-triangle", "user", "bolt", "battery-half", "shield-alt" };
+                }
+
+                @for (int i = 0; i < 6; i++)
+                {
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                        <a href="/eventos-fks/@(Model.ResumoFKS[i * 2].id_evento_estado)/@(Model.ResumoFKS[i * 2].decricao)" target="_blank">
+                        <div class="fks-card @(lstCSSs[i])">
+                            <div class="fks-card-header">
+                                
+
+                                <div class="fks-card-main">
+                                    <div class="fks-card-title">@(Model.ResumoFKS[i * 2].decricao)</div>
+                                </div>
+                            </div>
+
+                            <div class="fks-card-content">
+                                <div class="fks-card-icon">
+                                    <i class="fas fa-@(lstIcon[i])"></i>
+                                </div>
+                                <div>
+                                    <div class="fks-card-value">@(Model.ResumoFKS[i * 2].Qtd)</div>
+                                </div>
+                            </div>
+
+                            <div class="fks-card-content">
+                                
+                                <div class="fks-card-footer">
+                                    @(Model.ResumoFKS[i * 2 + 1].decricao): @(Model.ResumoFKS[i * 2 + 1].Qtd)
+                                </div>
+                            </div>
+
+                        </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
                 <div class="d-flex align-items-center">
-                    <h4 class="card-title">Eventos Registrados</h4>
+                    <h4 class="card-title">Eventos Registrados para Atendimento</h4>
                     
                     
                     <span id="eventosLoadingSpinner" class="spinner-border spinner-border-sm text-success d-none" style="margin-left: 10px" role="status" aria-hidden="true"></span>
@@ -78,7 +131,7 @@
                             </tr>
                         </tfoot>
                         <tbody>
-                            @foreach (var evento in Model)
+                            @foreach (var evento in Model.EventosPendentes)
                             {
                                 <tr>
                                     <td>
@@ -91,7 +144,7 @@
                                     <td>@(evento.Conta)</td>
                                     <td>@(evento.NomeCliente ?? "N/A")</td> @* Exibe o NomeCliente do ViewModel *@
                                     <td>@(evento.DataEvento?.ToString("dd/MM/yyyy HH:mm:ss"))</td>
-                                    <td>@(evento.TipoEvento)</td>
+                                    <td>@(evento.DisparaSom ? "🚨" : "") @(evento.TipoEvento)</td>
                                     
                                 </tr>
                             }
@@ -171,21 +224,19 @@
             
 
             // Pega todos os IdEvento da lista da Model e os converte para um array JavaScript
-            var lstIds = [@(string.Join(", ", Model.Select(e => e.IdEvento.ToString())))];
+            var lstIds = [@(string.Join(", ", Model.EventosPendentes.Select(e => e.IdEvento.ToString())))] ;
 
-            @Html.Raw(Model.Count(o => o.DisparaSom) > 0 ? "bAlarm = true;disparaSom();" : "")
+            var disparaSom = new URLSearchParams(window.location.search).has("disparaSom")
+                    ? new URLSearchParams(window.location.search).get("disparaSom") === "true"
+                    : @Html.Raw(Model.EventosPendentes.Count(o => o.DisparaSom) > 0 ? "true" : "false");
+            
+            if(disparaSom){
+                bAlarm = true;
+                soundPlay();
+            }
 
             // Função para fazer a requisição AJAX
             function checkEventosPendentes() {
-
-                //swal({
-                //    title: 'Verificando novos eventos...',
-                //    text: 'Por favor, aguarde.',
-                //    allowOutsideClick: false,
-                //    didOpen: () => {
-                //        Swal.showLoading();
-                //    }
-                //});
 
                 // Mostra o spinner ao lado do título
                 $('#eventosLoadingSpinner').removeClass('d-none');
@@ -193,25 +244,18 @@
                 $.ajax({
                     url: '@Url.Action("CheckEventosPendentes", "Evento")',
                     type: 'POST',
-                    //contentType: 'application/json; charset=utf-8', // Importante para enviar JSON
-                    //dataType: 'json', // Espera uma resposta JSON
-                    //headers: {
-                    //    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() // Inclui token anti-falsificação
-                    //},
                     data: { eventosIds: lstIds }, // Converte o objeto JavaScript para JSON
                     success: function (data) {
-                        //swal.close();
                         setTimeout(() => {
                             $('#eventosLoadingSpinner').addClass('d-none');
                         }, 1000)
 
                         if (data.qtdNovosEventoPendente != 0) {
                             // Se houver novos eventos pendentes, recarrega a página
-                            location.reload();
+                            recarregarPagina(data.qtdNovosEventoPendenteDisparaSom > 0);
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        //swal.close();
                         console.error('Erro na requisição AJAX:', textStatus, errorThrown, jqXHR.responseText);
                     }
                 });
@@ -224,9 +268,17 @@
             checkEventosPendentes();
         });
 
+        function recarregarPagina(disparaSom) {
+            var url = new URL(window.location.href);
 
+            // Atualiza ou adiciona o parâmetro
+            url.searchParams.set("disparaSom", disparaSom ? "true" : "false");
+
+            // Faz o reload com a nova URL
+            window.location.href = url.toString();
+        }
         
-        function disparaSom(){
+        function soundPlay(){
             if(bAlarm){
                 idAlarmSound.play();
 
@@ -245,7 +297,7 @@
                         pausaSom();
                     }
                 });
-                setTimeout(disparaSom, 3000);
+                setTimeout(soundPlay, 3000);
             }
             
         }
@@ -254,11 +306,5 @@
             idAlarmSound.pause();
             bAlarm = false;
         }
-        @*function checkEventosPendentes() {
-            var lstIds = [@(string.Join(", ", Model.Select(e => e.IdEvento.ToString())))];
-
-
-        }*@
-
     </script>
 }

@@ -1,0 +1,145 @@
+﻿
+/* WRAPPER AROUND ALL CARDS (keeps the rounded border you had) */
+.event-summary-wrapper {
+    padding: 16px;
+    border: 2px solid #2F7DF6;
+    border-radius: 30px;
+    margin-bottom: 10px;
+    background: rgba(47,125,246,0.03);
+}
+
+/* Use Bootstrap grid for responsiveness; cards themselves become full-width of their column */
+.event-summary-row {
+    margin: 0 -8px; /* balances the wrapper padding when using .col gutters */
+}
+
+/* CARD */
+.fks-card {
+    background: #f8f9fc;
+    border-radius: 18px;
+    padding: 18px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #edf1f7;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+    .fks-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+    }
+
+.fks-card-header {
+    text-align: center;
+}
+
+.fks-card-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.fks-card-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 16px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+
+.fks-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2a5a;
+    line-height: 1;
+}
+
+.fks-card-value {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.fks-card-footer {
+    font-size: 12px;
+    font-weight: 500;
+    color: #5f6b85;
+}
+
+/* COLOR VARIANTS (unchanged) */
+.fks-card.alarm .fks-card-icon {
+    background: linear-gradient(135deg, #ff6b81, #ff3b5c);
+}
+
+.fks-card.alarm .fks-card-value {
+    color: #ff3b5c;
+}
+
+.fks-card.panic .fks-card-icon {
+    background: linear-gradient(135deg, #ffb347, #ff8c1a);
+}
+
+.fks-card.panic .fks-card-value {
+    color: #ff8c1a;
+}
+
+.fks-card.connected .fks-card-icon {
+    background: linear-gradient(135deg, #65d96d, #43b84d);
+}
+
+.fks-card.connected .fks-card-value {
+    color: #43b84d;
+}
+
+.fks-card.energy .fks-card-icon {
+    background: linear-gradient(135deg, #5aa9ff, #2f7df6);
+}
+
+.fks-card.energy .fks-card-value {
+    color: #2f7df6;
+}
+
+.fks-card.battery .fks-card-icon {
+    background: linear-gradient(135deg, #a77dff, #7f56f0);
+}
+
+.fks-card.battery .fks-card-value {
+    color: #7f56f0;
+}
+
+.fks-card.disarmed .fks-card-icon {
+    background: linear-gradient(135deg, #48d1cc, #22b8b0);
+}
+
+.fks-card.disarmed .fks-card-value {
+    color: #22b8b0;
+}
+
+/* Small screens: tighten spacing and font sizes a bit */
+@ Media (max-width: 576px) {
+    .fks-card {
+        padding: 14px;
+        gap: 8px;
+    }
+
+    .fks-card-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    .fks-card-value {
+        font-size: 18px;
+    }
+}
+

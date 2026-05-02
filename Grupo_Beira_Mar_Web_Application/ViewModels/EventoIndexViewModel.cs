@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Grupo_Beira_Mar_Web_Application.Controllers;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grupo_Beira_Mar_Web_Application.ViewModels
@@ -34,5 +36,32 @@ namespace Grupo_Beira_Mar_Web_Application.ViewModels
         public bool GeraAtendimento { get; set; }
         public bool DisparaSom { get; set; }
         public string CorEvento { get; internal set; }
+    }
+
+    public class EventosPendentesViewModel
+    {
+        public List<EventoIndexViewModel> EventosPendentes { get; set; }
+        public List<ResumoFKSViewModel> ResumoFKS { get; set; }
+    }
+
+    public class EventosFKSViewModel
+    {
+        public EventosFKSViewModel()
+        {
+            this.Eventos = new List<EventosFKSItemViewModel>();
+        }
+
+        public int IdEventoEstado { get; set; }
+        public List<EventosFKSItemViewModel> Eventos { get; set; }
+        public string Descricao { get; internal set; }
+    }
+
+    public class EventosFKSItemViewModel
+    {
+        public int IdEventoEstado { get; set; }
+        public string Descricao { get; set; }
+        public string Codigo { get; set; }
+        public string Nome { get; set; }
+        public DateTime? DataHora { get; set; }
     }
 }

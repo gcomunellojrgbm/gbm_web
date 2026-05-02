@@ -45,8 +45,9 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                     .AddHours(-3); // corrige para o fuso do BR
                 var Evento = "E130";
                 var idReceptora = 1;
+                var idEventoEstado = 1;
 
-                await CriarEvento(client, dtEvento, Evento, idReceptora);
+                await CriarEvento(client, dtEvento, Evento, idReceptora, idEventoEstado);
 
                 return Ok($"Número registrado: {phoneNumber} ");
             }
@@ -54,7 +55,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
         }
 
-        private async Task CriarEvento(Cliente client, DateTime dtEvento, string Evento, int IdReceptora)
+        private async Task CriarEvento(Cliente client, DateTime dtEvento, string Evento, int IdReceptora, int? IdEventoEstado)
         {
             // Verifica se Evento já foi registrado
             var evento = await (
@@ -73,6 +74,8 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                 novoEvento.IdCliente = client.IdCliente;
                 novoEvento.DataHora = dtEvento;
                 novoEvento.Evento1 = Evento;
+                novoEvento.IdEventoEstado = IdEventoEstado;
+
                 novoEvento.EvtRest = 1;
                 novoEvento.Grupo = "00";
                 novoEvento.IdFormato = 1;
@@ -152,7 +155,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                         }
                         else
                         {
-                            await CriarEvento(client, DateTime.Now, evento, idReceptora);
+                            await CriarEvento(client, DateTime.Now.AddHours(-3), evento, idReceptora, configEvento.EventoEstado.Id);
                         }
                     //}
 
