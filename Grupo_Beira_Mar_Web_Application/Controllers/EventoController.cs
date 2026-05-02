@@ -163,6 +163,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
             var qtdNovosEventoPendente = eventosFiltrados.Count(e => !eventosIds.Contains(e.IdEvento));
             var qtdNovosEventoPendenteDisparaSom = eventosFiltrados.Count(e => !eventosIds.Contains(e.IdEvento) && e.DisparaSom);
+            var qtdEventoAtendidos = eventosIds.Count(e => !eventosFiltrados.Any(f => f.IdEvento == e));
 
             return Ok(new { 
                 qtdNovosEventoPendente = qtdNovosEventoPendente ,

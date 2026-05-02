@@ -254,6 +254,8 @@
                             // Se houver novos eventos pendentes, recarrega a página
                             recarregarPagina(data.qtdNovosEventoPendenteDisparaSom > 0);
                         }
+                        //todo: remover linha abaixo para produção
+                        setTimeout(checkEventosPendentes, 3000);
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.error('Erro na requisição AJAX:', textStatus, errorThrown, jqXHR.responseText);
@@ -262,7 +264,7 @@
             }
 
             // Chama a função checkEventosPendentes a cada 30 segundos (30000 milissegundos)
-            setInterval(checkEventosPendentes, 3000);
+            //todo: setInterval(checkEventosPendentes, 3000);
 
             // Opcional: Chamar uma vez ao carregar a página também
             checkEventosPendentes();
