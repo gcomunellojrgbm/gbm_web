@@ -45,7 +45,8 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                     EEA.decricao as Descricao,
                     C.codigo as Codigo,
                     C.nome as Nome,
-                    E.data_hora as DataHora
+                    E.data_hora as DataHora,
+                    EEA.cor
                 From evento E
                 Inner Join evento_estado_acao EEA
                     On EEA.cod_evento = E.evento
