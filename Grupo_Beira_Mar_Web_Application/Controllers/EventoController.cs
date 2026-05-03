@@ -91,8 +91,6 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                 ResumoFKS = await BuscaResumoFKS()
             };
 
-            
-
             return View(eventosPendentes);
         }
 
@@ -156,7 +154,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CheckEventosPendentesAsync(List<int> eventosIds)
+        public async Task<IActionResult> CheckEventosPendentesAsync(List<int> eventosIds, string resumoFKS)
         {
 
             List<EventoIndexViewModel> eventosFiltrados = await BuscaEventosPendentes();
@@ -165,9 +163,12 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             var qtdNovosEventoPendenteDisparaSom = eventosFiltrados.Count(e => !eventosIds.Contains(e.IdEvento) && e.DisparaSom);
             var qtdEventoAtendidos = eventosIds.Count(e => !eventosFiltrados.Any(f => f.IdEvento == e));
 
+            var lstResumoFKS = await BuscaResumoFKS();
+            var atualResumoFKS = string.Join("-", lstResumoFKS.Select(e => e.Qtd.ToString()));
+
             return Ok(new { 
-                qtdNovosEventoPendente = qtdNovosEventoPendente ,
-                qtdNovosEventoPendenteDisparaSom = qtdNovosEventoPendenteDisparaSom
+                reloadPage = qtdNovosEventoPendente > 0 || qtdEventoAtendidos > 0 || atualResumoFKS != resumoFKS,
+                disparaSom = qtdNovosEventoPendenteDisparaSom > 0
             });
         }
 
@@ -640,6 +641,11 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
             // If you want to execute and get the results as a list:
             return await query.ToListAsync();
+        }
+
+        public async Task<IActionResult> Simulador()
+        {
+            return View();
         }
     }
 

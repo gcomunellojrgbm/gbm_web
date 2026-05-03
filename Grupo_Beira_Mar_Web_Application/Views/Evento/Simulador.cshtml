@@ -1,0 +1,155 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Simulador de Disparo de Eventos";
+}
+
+<div class="container py-4">
+    <h3 class="mb-3">Simulador de Disparo de Eventos</h3>
+    <p class="text-muted small">Clique em um botão para enviar uma requisição GET para a rota <code>/CallReceived/EventoReceptora</code>.</p>
+
+    <div class="row g-2" id="simulatorButtons">
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-primary w-100 sim-btn" data-idreceptora="1" data-codigocliente="1234" data-particao="00" data-evento="E130">
+                GSM 1234
+            </button>
+        </div>
+    </div>
+    <div class="row g-2" id="simulatorButtons">
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-danger w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="E130">
+                FKS 9999 Alarme
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-danger w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="R130">
+                FKS 9999 Alarme R
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-danger w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="E120">
+                FKS 9999 Panico
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-danger w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="R120">
+                FKS 9999 Panico R
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-success w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="E007">
+                FKS 9999 Conexão
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-success w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="R007">
+                FKS 9999 Conexão R
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-info w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="E301">
+                FKS 9999 Energia
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-info w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="R301">
+                FKS 9999 Energia R
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-warning w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="E302">
+                FKS 9999 Bateria
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-warning w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="R302">
+                FKS 9999 Bateria R
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-secondary w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="E407">
+                FKS 9999 ARME
+            </button>
+        </div>
+
+        <div class="col-6 col-sm-4 col-md-3">
+            <button class="btn btn-outline-secondary w-100 sim-btn" data-idreceptora="2" data-codigocliente="9999" data-particao="00" data-evento="R407">
+                FKS 9999 ARME R
+            </button>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <div id="simResult" class="small text-muted">Nenhuma requisição enviada ainda.</div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            function buildUrl(idReceptora, codigoCliente, particao, evento) {
+                const params = new URLSearchParams({
+                    idReceptora: idReceptora,
+                    codigoCliente: codigoCliente,
+                    particao: particao,
+                    evento: evento
+                });
+                return '/CallReceived/EventoReceptora?' + params.toString();
+            }
+
+            function showResult(text, success) {
+                const el = document.getElementById('simResult');
+                el.textContent = text;
+                el.classList.toggle('text-success', !!success);
+                el.classList.toggle('text-danger', !success);
+            }
+
+            document.querySelectorAll('.sim-btn').forEach(btn => {
+                btn.addEventListener('click', async function () {
+                    const idReceptora = this.getAttribute('data-idreceptora');
+                    const codigoCliente = this.getAttribute('data-codigocliente');
+                    const particao = this.getAttribute('data-particao') || '00';
+                    const evento = this.getAttribute('data-evento');
+
+                    const url = buildUrl(idReceptora, codigoCliente, particao, evento);
+
+                    // Visual feedback while fetching
+                    const originalText = this.innerHTML;
+                    this.disabled = true;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
+
+                    try {
+                        // Use fetch to perform a GET without navigating away
+                        const res = await fetch(url, { method: 'GET', credentials: 'same-origin' });
+
+                        const statusText = `GET ${url} → ${res.status} ${res.statusText}`;
+                        let bodyText = '';
+                        try {
+                            bodyText = await res.text();
+                            if (bodyText.length > 500) bodyText = bodyText.slice(0, 500) + '...';
+                        } catch (e) {
+                            bodyText = '';
+                        }
+
+                        showResult(statusText + (bodyText ? ' — ' + bodyText : ''), res.ok);
+                    } catch (err) {
+                        showResult('Erro ao enviar: ' + err.message, false);
+                    } finally {
+                        this.disabled = false;
+                        this.innerHTML = originalText;
+                    }
+                });
+            });
+        })();
+    </script>
+}

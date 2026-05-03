@@ -42,6 +42,7 @@ namespace Grupo_Beira_Mar_Web_Application.ViewModels
     {
         public List<EventoIndexViewModel> EventosPendentes { get; set; }
         public List<ResumoFKSViewModel> ResumoFKS { get; set; }
+        
     }
 
     public class EventosFKSViewModel

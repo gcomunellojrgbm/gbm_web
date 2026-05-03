@@ -221,10 +221,13 @@
             // =========================================================
             // Lógica para verificar novos eventos pendentes via AJAX
             // =========================================================
-            
+
 
             // Pega todos os IdEvento da lista da Model e os converte para um array JavaScript
             var lstIds = [@(string.Join(", ", Model.EventosPendentes.Select(e => e.IdEvento.ToString())))] ;
+            // Faz um Mapa das quantidades dos eventos de FKS, para identificar variação
+            var resumoFKS = '@(string.Join("-", Model.ResumoFKS.Select(e => e.Qtd.ToString())))' ;
+
 
             var disparaSom = new URLSearchParams(window.location.search).has("disparaSom")
                     ? new URLSearchParams(window.location.search).get("disparaSom") === "true"
@@ -244,15 +247,18 @@
                 $.ajax({
                     url: '@Url.Action("CheckEventosPendentes", "Evento")',
                     type: 'POST',
-                    data: { eventosIds: lstIds }, // Converte o objeto JavaScript para JSON
+                    data: { 
+                        eventosIds: lstIds,
+                        resumoFKS: resumoFKS
+                    }, 
                     success: function (data) {
                         setTimeout(() => {
                             $('#eventosLoadingSpinner').addClass('d-none');
                         }, 1000)
 
-                        if (data.qtdNovosEventoPendente != 0) {
+                        if (data.reloadPage) {
                             // Se houver novos eventos pendentes, recarrega a página
-                            recarregarPagina(data.qtdNovosEventoPendenteDisparaSom > 0);
+                            recarregarPagina(data.disparaSom);
                         }
                         //todo: remover linha abaixo para produção
                         setTimeout(checkEventosPendentes, 3000);
