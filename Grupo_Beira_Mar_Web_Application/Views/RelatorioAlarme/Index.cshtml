@@ -69,7 +69,7 @@
                             <div class="form-group mb-3">
                                 <label class="col-sm-12 col-form-label">Data Inicial</label>
                                 <div class="col-sm-12">
-                                    @Html.TextBoxFor(m => m.Filtros.DataInicial, new { @class = "form-control", type = "date" })
+                                    @Html.TextBoxFor(m => m.Filtros.DataInicial, Model.Filtros.DataInicial?.ToString("yyyy-MM-dd"), new { @class = "form-control", type = "date" })
                                     @*<input asp-for="Nome" class="form-control" required />*@
                                 </div>
                             </div>
@@ -79,7 +79,7 @@
                             <div class="form-group mb-3">
                                 <label class="col-sm-12 col-form-label">Data Final</label>
                                 <div class="col-sm-12">
-                                    @Html.TextBoxFor(m => m.Filtros.DataFinal, new { @class = "form-control", type = "date" })
+                                    @Html.TextBoxFor(m => m.Filtros.DataFinal, Model.Filtros.DataFinal?.ToString("yyyy-MM-dd"), new { @class = "form-control", type = "date" })
                                     @*<input asp-for="Nome" class="form-control" required />*@
                                 </div>
                             </div>
@@ -157,6 +157,7 @@
                                 <th></th>
                                 <th>Data</th>
                                 <th>Evento</th>
+                                <th>Receptora</th>
                                 <th>Código</th>
                                 <th>Nome</th>
                                 <th>Endereço</th>
@@ -170,6 +171,7 @@
                                 <th></th>
                                 <th>Data</th>
                                 <th>Evento</th>
+                                <th>Receptora</th>
                                 <th>Código</th>
                                 <th>Nome</th>
                                 <th>Endereço</th>
@@ -189,6 +191,7 @@
                                 </td>
                                 <td>@(alarme.DataEvento.Value.ToString("dd/MM/yyyy HH:mm:ss"))</td>
                                 <td><i class="fas fa-info-circle" style="color:@(alarme.CorEvento)"></i> @alarme.Evento</td>
+                                <td>@alarme.ReceptoraNome</td>    
                                 <td>@alarme.Codigo</td>
                                 <td>@alarme.Nome</td>
                                 <td>@alarme.Endereco</td>
