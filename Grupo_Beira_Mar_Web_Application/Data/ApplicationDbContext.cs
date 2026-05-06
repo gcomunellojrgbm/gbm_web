@@ -1871,6 +1871,10 @@ namespace Grupo_Beira_Mar_Web_Application.Data
                 entity.Property(e => e.Nome)
                     .HasColumnName("nome")
                     .HasMaxLength(50);
+                
+                entity.Property(e => e.UltimaMensagem)
+                    .HasColumnName("ultima_mensagem")
+                    .HasMaxLength(50);
 
             });
 

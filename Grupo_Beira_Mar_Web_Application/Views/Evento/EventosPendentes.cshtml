@@ -4,7 +4,16 @@
     
 }
 
-
+<style>
+    #ststusFKS{
+        display: inline;
+        margin: 0px;
+    }
+    #ststusFKS span{
+        margin-bottom: 5px;
+        margin-left: 20px;
+    }
+</style>
 
 <audio id="idAlarmSound" src="~/assets/audio/alarme_01.mp3"></audio>
 
@@ -36,7 +45,7 @@
     <div class="col-12">
         <div class="event-summary-wrapper">
             
-            <h4 style="margin-left: 10px;">Indicadores da Receptora FKS</h4>
+            <h4 style="margin-left: 10px;display: inline;">Indicadores da Receptora FKS </h4><div id="ststusFKS" style="display: inline;margin: 0px;"></div>
 
             <div class="row event-summary-row g-3">
                 @{
@@ -260,6 +269,19 @@
                             // Se houver novos eventos pendentes, recarrega a página
                             recarregarPagina(data.disparaSom);
                         }
+
+                        //verificar o tempo de resposta do FKS
+                        if(data.segundosUltimaMensagemFKS < 40){
+                            // avisa que está online
+                            $('#ststusFKS').html('<span class="badge bg-success">FKS Online</span>');
+                        }else if(data.segundosUltimaMensagemFKS < 60){
+                            //avisa que a conecão está crítica
+                            $('#ststusFKS').html('<span class="badge bg-warning text-dark">FKS Conexão Crítica</span>');
+                        }else{
+                            //avisa que a conecão está offline
+                            $('#ststusFKS').html('<span class="badge bg-danger">FKS Offline</span>');
+                        }
+
                         //todo: remover linha abaixo para produção
                         setTimeout(checkEventosPendentes, 3000);
                     },
