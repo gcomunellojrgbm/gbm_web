@@ -89,6 +89,14 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         {
             //var query = _context.Cliente.AsQueryable();
             
+            if (!viewModel.Filtros.DataInicial.HasValue)
+            {
+                viewModel.Filtros.DataInicial = DateTime.Parse(DateTime.UtcNow.AddHours(-3).ToString("yyyy-MM-dd"));
+            }
+            if (!viewModel.Filtros.DataFinal.HasValue)
+            {
+                viewModel.Filtros.DataFinal = DateTime.Parse(DateTime.UtcNow.AddHours(-3).ToString("yyyy-MM-dd")).AddDays(1);
+            }
 
             var query = (from Evento in _dbContext.Evento
                              // LEFT JOIN com ClienteMonitoramento via 'Conta'
@@ -171,7 +179,8 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
                     NumeroChip = c.NumeroChip,
                     DataEvento = c.DataEvento,
                     Evento = c.TipoEvento,
-                    CorEvento = c.CorEvento
+                    CorEvento = c.CorEvento,
+                    ReceptoraNome = c.ReceptoraNome
                     //EmailContato = c.EmailContato,
                     //Ativo = c.Ativo,
                     //Status = (bool)c.Ativo ? "Ativo" : "Inativo"
@@ -246,8 +255,9 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         public bool? Ativo { get; set; }
         public DateTime? DataEvento { get; set; }
         public int IdEvento { get; set; }
-        public string Evento { get; internal set; }
-        public string CorEvento { get; internal set; }
+        public string Evento { get; set; }
+        public string CorEvento { get; set; }
+        public string ReceptoraNome { get; set; }
     }
 
     public class RelatorioAlarmeFiltrosViewModel

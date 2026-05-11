@@ -166,9 +166,18 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             var lstResumoFKS = await BuscaResumoFKS();
             var atualResumoFKS = string.Join("-", lstResumoFKS.Select(e => e.Qtd.ToString()));
 
+            //Verifica quantos segundos se passaram da ultima mensagem da recetora 2
+            var receptora2 = await _dbContext.Receptora.FirstOrDefaultAsync(r => r.IdReceptora == 2);
+            var segundosUltimaMensagemFKS = 120; // Valor padrão caso seja nulo
+            if (receptora2 != null)
+            {
+                segundosUltimaMensagemFKS = (int)(DateTime.UtcNow.AddHours(-3) - receptora2.UltimaMensagem).Value.TotalSeconds;
+            }
+
             return Ok(new { 
                 reloadPage = qtdNovosEventoPendente > 0 || qtdEventoAtendidos > 0 || atualResumoFKS != resumoFKS,
-                disparaSom = qtdNovosEventoPendenteDisparaSom > 0
+                disparaSom = qtdNovosEventoPendenteDisparaSom > 0,
+                segundosUltimaMensagemFKS = segundosUltimaMensagemFKS
             });
         }
 

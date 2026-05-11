@@ -11,6 +11,7 @@ namespace Grupo_Beira_Mar_Web_Application.DataModels
     {
         public int IdReceptora { get; set; }
         public string Nome { get; set; }
+        public DateTime? UltimaMensagem { get; set; }
 
     }
 }

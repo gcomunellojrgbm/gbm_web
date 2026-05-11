@@ -1,0 +1,234 @@
+﻿@model Grupo_Beira_Mar_Web_Application.Controllers.RelatorioAtendimentoViewModel
+
+@{
+    ViewData["Title"] = "Relatório de Atendimentos";
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <h2 class="mb-4"><i class="fas fa-users me-2"></i>@(ViewData["Title"])</h2>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <form method="post" onsubmit="carregando()">
+
+                    <div class="row col-md-12">
+
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Receptora</label>
+                                <select name="Filtros.ReceptoraId" class="form-select">
+                                    <option value="">-- Todas --</option>
+                                    @foreach (var r in (IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)ViewBag.Receptoras)
+                                    {
+                                        var selected = Model.Filtros.ReceptoraId.HasValue && Model.Filtros.ReceptoraId.Value.ToString() == r.Value;
+                                        <option value="@r.Value" selected="@(selected ? "selected" : null)">@r.Text</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Código Cliente</label>
+                                <input name="Filtros.CodigoCliente" value="@(Model.Filtros?.CodigoCliente ?? "")" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Número do Chip</label>
+                                <input name="Filtros.NumeroChip" value="@(Model.Filtros?.NumeroChip ?? "")" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Nome Cliente</label>
+                                <input name="Filtros.NomeCliente" value="@(Model.Filtros?.NomeCliente ?? "")" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Tipos de Evento (multi)</label>
+                                <select name="Filtros.TipoEventos" class="form-select" multiple size="6">
+                                    @foreach (var t in (IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)ViewBag.TipoEventos)
+                                    {
+                                        var selected = Model.Filtros?.TipoEventos != null && Model.Filtros.TipoEventos.Contains(t.Value);
+                                        if (selected)
+                                        {
+                                            <option value="@t.Value" selected>@t.Text (@t.Value)</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@t.Value">@t.Text (@t.Value)</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+
+                                    <label class="form-label">Data/Hora Início</label>
+                                    <input name="Filtros.DataInicial" type="datetime-local" class="form-control"
+                                           value="@(Model.Filtros?.DataInicial.HasValue == true ? Model.Filtros.DataInicial.Value.ToString("yyyy-MM-ddTHH:mm") : "")" />
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Data/Hora Fim</label>
+                                <input name="Filtros.DataFinal" type="datetime-local" class="form-control"
+                                        value="@(Model.Filtros?.DataFinal.HasValue == true ? Model.Filtros.DataFinal.Value.ToString("yyyy-MM-ddTHH:mm") : "")" />
+                                
+                                <br />
+
+                                <button type="submit" class="btn btn-primary" style="width: 49%;">
+                                    Pesquisar
+                                </button>
+                                <button type="submit" formaction="/RelatorioAtendimento/ExportarExcelAsync" formmethod="post" class="btn btn-outline-success" style="max-width: 48%;margin-left: 5px;width: 50%;">
+                                    Exportar Excel
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <h4 class="card-title">Consulta</h4>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+
+                    <div class="demo-spinner" id="divLoading">
+                        <button class="btn btn-primary" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                            <span role="status">Loading...</span>
+                        </button>
+                    </div>
+
+                    <table id="multi-filter-select" class="display table table-striped table-hover" style="display:none">
+                        <thead>
+                            <tr>
+                                <th>Data Hora Evento</th>
+                                <th>Receptora</th>
+                                <th>Código Evento</th>
+                                <th>Descrição Evento</th>
+                                <th>Código Cliente</th>
+                                <th>Nome Cliente</th>
+                                <th>Descrição Atendimento</th>
+                                <th>Nome Atendente</th>
+                                <th>Início Atendimento</th>
+                                <th>Fim Atendimento</th>
+                                <th>Tempo Atendimento</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th>Data Hora Evento</th>
+                                <th>Receptora</th>
+                                <th>Código Evento</th>
+                                <th>Descrição Evento</th>
+                                <th>Código Cliente</th>
+                                <th>Nome Cliente</th>
+                                <th>Descrição Atendimento</th>
+                                <th>Nome Atendente</th>
+                                <th>Início Atendimento</th>
+                                <th>Fim Atendimento</th>
+                                <th>Tempo Atendimento</th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                            @foreach (var it in Model.Itens)
+                            {
+                                <tr>
+                                    <td>@(it.DataEvento?.ToString("dd/MM/yyyy HH:mm:ss") ?? "")</td>
+                                    <td>@it.Receptora</td>
+                                    <td>@it.CodigoEvento</td>
+                                    <td>@it.DescricaoEvento</td>
+                                    <td>@it.CodigoCliente</td>
+                                    <td>@it.NomeCliente</td>
+                                    <td>@it.DescricaoAtendimento</td>
+                                    <td>@it.NomeAtendente</td>
+                                    <td>@(it.DataInicioAtendimento?.ToString("dd/MM/yyyy HH:mm:ss") ?? "")</td>
+                                    <td>@(it.DataFimAtendimento?.ToString("dd/MM/yyyy HH:mm:ss") ?? "")</td>
+                                    <td>@(it.TempoAtendimento.HasValue ? string.Format("{0:%d}d {0:hh}h {0:mm}m {0:ss}s", it.TempoAtendimento.Value) : "")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+    $(document).ready(function () {
+
+
+
+
+        $('#multi-filter-select').DataTable({
+            "pageLength": 5,
+            initComplete: function () {
+
+                $('#divLoading').hide();
+                $('#multi-filter-select').show();
+
+                this.api().columns().every(function () {
+                    var column = this;
+                    var select = $('<select class="form-select"><option value=""></option></select>')
+                        .appendTo($(column.footer()).empty())
+                        .on('change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+
+                            column
+                                .search(val ? '^' + val + '$' : '', true, false)
+                                .draw();
+                        });
+
+                    column.data().unique().sort().each(function (d, j) {
+                        select.append('<option value="' + d + '">' + d + '</option>')
+                    });
+                });
+            }
+        });
+
+
+    });
+
+</script>
+}

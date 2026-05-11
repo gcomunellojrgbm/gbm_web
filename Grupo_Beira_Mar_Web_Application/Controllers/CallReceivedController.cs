@@ -137,7 +137,22 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
                 if(configEvento == null)
                 {
-                    return BadRequest("Parâmetros Inválidos");
+                    // Identifica a mensagem de conexão da Receptora FKS
+                    if (codigoCliente == "@   " && particao == "@ " && evento == "@   ")
+                    {
+                        var receptora = await _dbContext.Receptora.FirstOrDefaultAsync(r => r.IdReceptora.Equals(idReceptora));
+                        if (receptora != null)
+                        {
+                            receptora.UltimaMensagem = DateTime.UtcNow.AddHours(-3);
+                            await _dbContext.SaveChangesAsync();
+                        }
+                        return Ok($"Receptora {idReceptora} conectada com sucesso.");
+                    }
+                    else
+                    {
+                        return BadRequest($"Evento {evento} não configurado para a Receptora {idReceptora}.");
+                    }
+                    
                 }
                 else
                 {

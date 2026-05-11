@@ -13,6 +13,8 @@
             <form asp-action="Create" method="post" onsubmit="load()">
                 <input type="hidden" asp-for="IdCliente" />
 
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group row mb-3">
@@ -34,6 +36,7 @@
                             <label asp-for="Codigo" class="col-sm-2 col-form-label">Código Cliente</label>
                             <div class="col-sm-2">
                                 <input asp-for="Codigo" class="form-control" required />
+                                <span asp-validation-for="Codigo" class="text-danger"></span>
                             </div>
 
                             <label asp-for="Particao" class="col-sm-2 col-form-label">Partição FKS</label>
@@ -217,6 +220,7 @@
         @TempData["SuccessMessage"]
     </div>
 }
+
 
 
 @section Scripts{

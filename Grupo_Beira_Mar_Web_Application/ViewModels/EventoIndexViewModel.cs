@@ -64,5 +64,6 @@ namespace Grupo_Beira_Mar_Web_Application.ViewModels
         public string Codigo { get; set; }
         public string Nome { get; set; }
         public DateTime? DataHora { get; set; }
+        public string Cor { get; set; } 
     }
 }

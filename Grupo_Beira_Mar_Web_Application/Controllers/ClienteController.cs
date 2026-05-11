@@ -104,6 +104,21 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ClienteViewModel model)
         {
+            // Validate that model.Codigo cannot be duplicated for the same model.IdReceptora
+            var codigoNormalized = model.Codigo?.Trim();
+            var codigoExists = await _dbContext.Cliente
+                .AnyAsync(c =>
+                    (c.Codigo ?? "").Trim().ToUpper() == codigoNormalized.ToUpper()
+                    && c.IdReceptora == model.IdReceptora
+                    && (!model.IdCliente.HasValue || c.IdCliente != model.IdCliente.Value)
+                );
+
+            if (codigoExists)
+            {
+                ModelState.AddModelError(nameof(model.Codigo), "Código já existe para esta receptora.");
+            }
+            
+
             if (!ModelState.IsValid)
             {
                 model.TiposCliente = await _dbContext.TipoCliente
@@ -141,7 +156,7 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             }
 
             // Cliente
-            cliente.Codigo = model.Codigo;
+            cliente.Codigo = codigoNormalized;
             cliente.Particao = model.Particao;
             cliente.Nome = model.Nome;
             cliente.Estado = model.Estado;
