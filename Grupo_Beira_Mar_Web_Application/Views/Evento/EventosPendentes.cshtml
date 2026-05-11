@@ -5,14 +5,141 @@
 }
 
 <style>
-    #ststusFKS{
+    #statusFKS{
         display: inline;
         margin: 0px;
     }
-    #ststusFKS span{
+
+    #statusFKS span {
         margin-bottom: 5px;
         margin-left: 20px;
     }
+
+    .connection-widget {
+        width: 100%;
+        max-width: 700px;
+    }
+
+    .connection-title {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .connection-subtitle {
+        color: #666;
+        margin-bottom: 25px;
+    }
+
+    .status-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .status-label {
+        min-width: 170px;
+        font-size: 18px;
+        font-weight: bold;
+        display: inline;
+    }
+
+        .status-label.good {
+            color: #1fa72f;
+        }
+
+        .status-label.warning {
+            color: #d68b00;
+        }
+
+        .status-label.offline {
+            color: #d62828;
+        }
+
+    .bar-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .bar-background {
+        position: relative;
+        width: 200px;
+        height: 18px;
+        border-radius: 999px;
+        background: #e5e7eb;
+        overflow: hidden;
+        border: 1px solid #d1d5db;
+        display: flex;
+    }
+
+    .segment {
+        height: 100%;
+        transition: width 0.4s ease;
+    }
+
+    .green {
+        background: #20b339;
+        width: 0;
+    }
+
+    .yellow {
+        background: #f5b400;
+        width: 0;
+    }
+
+    .red {
+        background: #e53935;
+        width: 0;
+    }
+
+    .time-display {
+        margin-left: 20px;
+        min-width: 110px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .seconds-display {
+        display: block;
+        font-size: 14px;
+        font-weight: normal;
+        color: #666;
+        margin-top: 4px;
+    }
+
+    .legend {
+        margin-top: 18px;
+        font-size: 14px;
+        color: #666;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+        .dot.green {
+            background: #20b339;
+        }
+
+        .dot.yellow {
+            background: #f5b400;
+        }
+
+        .dot.red {
+            background: #e53935;
+        }
 </style>
 
 <audio id="idAlarmSound" src="~/assets/audio/alarme_01.mp3"></audio>
@@ -45,7 +172,30 @@
     <div class="col-12">
         <div class="event-summary-wrapper">
             
-            <h4 style="margin-left: 10px;display: inline;">Indicadores da Receptora FKS </h4><div id="ststusFKS" style="display: inline;margin: 0px;"></div>
+            <h4 style="margin-left: 10px;display: inline;">Indicadores da Receptora FKS </h4>
+            <div id="statusFKS" style="display: inline;margin: 0px;"></div>
+            <div id="statusFKSProgress" style="display: inline;margin: 0px;">
+                @* <div id="statusLabel" class="status-label good">
+                    Conexão Boa
+                </div> *@
+
+                <div class="bar-wrapper">
+                    <div class="bar-background">
+
+                        <div id="greenBar" class="segment green"></div>
+                        <div id="yellowBar" class="segment yellow"></div>
+                        <div id="redBar" class="segment red"></div>
+
+                    </div>
+
+                    <div id="timeDisplay" class="time-display">
+                        00:00
+                        @* <span id="secondsDisplay" class="seconds-display">
+                            0 segundos
+                        </span> *@
+                    </div>
+                </div>
+            </div>
 
             <div class="row event-summary-row g-3">
                 @{
@@ -273,14 +423,16 @@
                         //verificar o tempo de resposta do FKS
                         if(data.segundosUltimaMensagemFKS < 40){
                             // avisa que está online
-                            $('#ststusFKS').html('<span class="badge bg-success">FKS Online</span>');
+                            $('#statusFKS').html('<span class="badge bg-success">FKS Online</span>');
                         }else if(data.segundosUltimaMensagemFKS < 60){
                             //avisa que a conecão está crítica
-                            $('#ststusFKS').html('<span class="badge bg-warning text-dark">FKS Conexão Crítica</span>');
+                            $('#statusFKS').html('<span class="badge bg-warning text-dark">FKS Conexão Crítica</span>');
                         }else{
                             //avisa que a conecão está offline
-                            $('#ststusFKS').html('<span class="badge bg-danger">FKS Offline</span>');
+                            $('#statusFKS').html('<span class="badge bg-danger">FKS Offline</span>');
                         }
+
+                        atualizarConexao(data.segundosUltimaMensagemFKS);
 
                         //todo: remover linha abaixo para produção
                         setTimeout(checkEventosPendentes, 3000);
@@ -336,5 +488,144 @@
             idAlarmSound.pause();
             bAlarm = false;
         }
+
+            /*
+            CONFIGURAÇÕES PARAMETRIZÁVEIS
+        */
+
+        const CONFIG = {
+            totalWidth: 200,          // largura total da barra
+            redMaxWidth: 30,          // largura máxima da parte vermelha
+            goodLimit: 180,           // 3 min (segundos)
+            warningLimit: 360,        // 6 min (segundos)
+            barHeight: 18
+        };
+
+
+        /*
+            FUNÇÃO PRINCIPAL
+            Chame assim:
+            atualizarConexao(75);
+            atualizarConexao(260);
+            atualizarConexao(500);
+        */
+
+        function atualizarConexao(seconds) {
+
+            const greenBar = document.getElementById("greenBar");
+            const yellowBar = document.getElementById("yellowBar");
+            const redBar = document.getElementById("redBar");
+            //const statusLabel = document.getElementById("statusLabel");
+            const timeDisplay = document.getElementById("timeDisplay");
+            //const secondsDisplay = document.getElementById("secondsDisplay");
+
+            const greenMaxWidth = CONFIG.totalWidth - CONFIG.redMaxWidth;
+            const yellowMaxWidth = greenMaxWidth / 2;
+            const greenOnlyWidth = greenMaxWidth / 2;
+
+            let greenWidth = 0;
+            let yellowWidth = 0;
+            let redWidth = 0;
+
+            let statusText = "";
+            let statusClass = "";
+
+            /*
+                FAIXA VERDE
+                até goodLimit
+            */
+            if (seconds <= CONFIG.goodLimit) {
+                greenWidth = (seconds / CONFIG.goodLimit) * greenOnlyWidth;
+                yellowWidth = 0;
+                redWidth = 0;
+
+                statusText = "Conexão Boa";
+                statusClass = "good";
+                // avisa que está online
+                $('#statusFKS').html('<span class="badge bg-success">FKS Online</span>');
+            }
+
+            /*
+                FAIXA AMARELA
+                entre goodLimit e warningLimit
+            */
+            else if (seconds <= CONFIG.warningLimit) {
+                greenWidth = greenOnlyWidth;
+
+                yellowWidth =
+                    ((seconds - CONFIG.goodLimit) /
+                    (CONFIG.warningLimit - CONFIG.goodLimit))
+                    * yellowMaxWidth;
+
+                redWidth = 0;
+
+                statusText = "Conexão Crítica";
+                statusClass = "warning";
+                //avisa que a conecão está crítica
+                $('#statusFKS').html('<span class="badge bg-warning text-dark">FKS Conexão Crítica</span>');
+            }
+
+            /*
+                FAIXA VERMELHA
+                acima de warningLimit
+            */
+            else {
+                greenWidth = greenOnlyWidth;
+                yellowWidth = yellowMaxWidth;
+
+                const overflow = seconds - CONFIG.warningLimit;
+
+                /*
+                    crescimento controlado da parte vermelha
+                    aqui usamos 300 segundos como escala visual
+                    pode ajustar facilmente
+                */
+                redWidth = Math.min(
+                    (overflow / 150) * CONFIG.redMaxWidth,
+                    CONFIG.redMaxWidth
+                );
+
+                statusText = "Sem Conexão";
+                statusClass = "offline";
+                //avisa que a conecão está offline
+                $('#statusFKS').html('<span class="badge bg-danger">FKS Offline</span>');
+            }
+
+            greenBar.style.width = `${greenWidth}px`;
+            yellowBar.style.width = `${yellowWidth}px`;
+            redBar.style.width = `${redWidth}px`;
+
+            //statusLabel.className = `status-label ${statusClass}`;
+            //statusLabel.innerText = statusText;
+
+            timeDisplay.childNodes[0].nodeValue = formatTime(seconds);
+            //secondsDisplay.innerText = `${seconds} segundos`;
+        }
+
+
+        /*
+            FORMATA MM:SS
+        */
+
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+
+            return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        }
+
+
+        /*
+            EXEMPLO DE TESTE
+            remova depois
+        */
+
+        // let teste = 0;
+
+        // setInterval(() => {
+        //     atualizarConexao(teste);
+        //     teste += 5;
+        // }, 1000);
+
     </script>
 }
