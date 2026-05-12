@@ -435,7 +435,7 @@
                         atualizarConexao(data.segundosUltimaMensagemFKS);
 
                         //todo: remover linha abaixo para produção
-                        setTimeout(checkEventosPendentes, 3000);
+                        //setTimeout(checkEventosPendentes, 3000);
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.error('Erro na requisição AJAX:', textStatus, errorThrown, jqXHR.responseText);
@@ -444,7 +444,7 @@
             }
 
             // Chama a função checkEventosPendentes a cada 30 segundos (30000 milissegundos)
-            //todo: setInterval(checkEventosPendentes, 3000);
+            setInterval(checkEventosPendentes, 3000);
 
             // Opcional: Chamar uma vez ao carregar a página também
             checkEventosPendentes();
