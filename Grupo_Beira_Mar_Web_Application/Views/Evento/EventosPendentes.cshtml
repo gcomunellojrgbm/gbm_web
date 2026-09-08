@@ -397,6 +397,8 @@
                 soundPlay();
             }
 
+            var recarregandoPagina = false;
+
             // Função para fazer a requisição AJAX
             function checkEventosPendentes() {
 
@@ -411,13 +413,12 @@
                         resumoFKS: resumoFKS
                     }, 
                     success: function (data) {
-                        setTimeout(() => {
-                            $('#eventosLoadingSpinner').addClass('d-none');
-                        }, 1000)
 
                         if (data.reloadPage) {
                             // Se houver novos eventos pendentes, recarrega a página
+                            recarregandoPagina = true;
                             recarregarPagina(data.disparaSom);
+                            return;
                         }
 
                         //verificar o tempo de resposta do FKS
@@ -434,19 +435,21 @@
 
                         atualizarConexao(data.segundosUltimaMensagemFKS);
 
-                        //todo: remover linha abaixo para produção
-                        //setTimeout(checkEventosPendentes, 3000);
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.error('Erro na requisição AJAX:', textStatus, errorThrown, jqXHR.responseText);
+                    },
+                    complete: function () {
+                        $('#eventosLoadingSpinner').addClass('d-none');
+                        // Aguarda o término da chamada, inclusive em caso de erro.
+                        if (!recarregandoPagina) {
+                            setTimeout(checkEventosPendentes, 3000);
+                        }
                     }
                 });
             }
 
-            // Chama a função checkEventosPendentes a cada 30 segundos (30000 milissegundos)
-            setInterval(checkEventosPendentes, 3000);
-
-            // Opcional: Chamar uma vez ao carregar a página também
+            // Inicia a primeira verificação ao carregar a página.
             checkEventosPendentes();
         });
 
