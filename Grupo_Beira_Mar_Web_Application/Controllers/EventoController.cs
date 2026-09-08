@@ -591,89 +591,67 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
         public async Task<List<ResumoFKSViewModel>> BuscaResumoFKS()
         {
-            StringBuilder sql = new StringBuilder();
+            // Calcula todos os grupos juntos, preservando empates de data e categorias zeradas.
+            const string sql = """
+                ;WITH UltimasDatas AS
+                (
+                    SELECT IdCliente, id_evento_estado, MAX(data_hora) AS ultima_data
+                    FROM dbo.evento
+                    WHERE id_evento_estado BETWEEN 1 AND 6
+                    GROUP BY IdCliente, id_evento_estado
+                ),
+                Contagens AS
+                (
+                    SELECT
+                        e.id_evento_estado,
+                        ee.descricao AS grupo_evento,
+                        eea.decricao,
+                        eea.cor,
+                        COUNT(*) AS Qtd
+                    FROM dbo.evento AS e
+                    LEFT JOIN UltimasDatas AS u
+                        ON u.IdCliente = e.IdCliente
+                       AND u.id_evento_estado = e.id_evento_estado
+                    INNER JOIN dbo.evento_estado AS ee
+                        ON ee.id = e.id_evento_estado
+                    INNER JOIN dbo.evento_estado_acao AS eea
+                        ON eea.cod_evento = e.evento
+                    WHERE e.id_receptora = 2
+                      AND e.id_evento_estado BETWEEN 1 AND 6
+                      AND
+                      (
+                          e.data_hora = u.ultima_data
+                          OR e.data_hora IS NULL
+                          OR e.IdCliente IS NULL
+                      )
+                    GROUP BY e.id_evento_estado, ee.descricao, eea.decricao, eea.cor
+                ),
+                Categorias AS
+                (
+                    SELECT
+                        ee.id AS id_evento_estado,
+                        ee.descricao AS grupo_evento,
+                        eea.decricao,
+                        eea.cor,
+                        0 AS Qtd
+                    FROM dbo.evento_estado AS ee
+                    INNER JOIN dbo.evento_estado_acao AS eea
+                        ON eea.id_evento_estado = ee.id
+                    GROUP BY ee.id, ee.descricao, eea.decricao, eea.cor
+                ),
+                Resumo AS
+                (
+                    SELECT id_evento_estado, grupo_evento, decricao, cor, Qtd FROM Categorias
+                    UNION ALL
+                    SELECT id_evento_estado, grupo_evento, decricao, cor, Qtd FROM Contagens
+                )
+                SELECT id_evento_estado, grupo_evento, decricao, cor, SUM(Qtd) AS Qtd
+                FROM Resumo
+                GROUP BY id_evento_estado, grupo_evento, decricao, cor
+                ORDER BY id_evento_estado, cor DESC;
+                """;
 
-            sql.Append(@"
-                Declare @id_evento_estado int = 1
-
-                Select 
-	                EE.id id_evento_estado,
-					EE.descricao grupo_evento,
-	                EEA.decricao,
-	                EEA.cor,
-	                0 Qtd
-                Into #TMP
-                from evento_estado EE
-                Inner Join evento_estado_acao EEA
-	                On EEA.id_evento_estado = EE.id
-                Group By 
-	                EE.id,
-					EE.descricao,
-	                EEA.decricao,
-	                EEA.cor
-	
-
-                While @id_evento_estado <= 6
-                Begin
-	                Declare @EE_descricao nvarchar(50)
-	                Declare @EE_cor_ausente nvarchar(50)
-
-	                Select 
-		                @EE_descricao = EE.descricao,
-		                @EE_cor_ausente = EE.cor_ausente
-	                From evento_estado EE
-	                Where EE.id = @id_evento_estado
-
-	                Insert Into #TMP(id_evento_estado, grupo_evento, decricao, cor, Qtd)
-	                Select 
-		                E.id_evento_estado,
-		                @EE_descricao,
-						EEA.decricao,
-		                EEA.cor,
-		                count(*) Qtd
-	                From evento E
-	                Inner Join evento_estado_acao EEA
-		                On EEA.cod_evento = E.evento
-	                Where E.id_receptora = 2 -- FKS
-		                and E.id_evento_estado = @id_evento_estado
-		                and Not Exists( -- Onde não existe outro evento do mesmo cliente e grupo de eventos mais recente
-		                Select Top 1 1
-		                From evento E2
-		                Where E2.IdCliente = E.IdCliente
-			                and E2.id_evento_estado = @id_evento_estado
-			                and E2.data_hora > E.data_hora
-		                )
-	                Group By E.id_evento_estado,
-		                E.evento,
-		                EEA.decricao,
-		                EEA.cor
-
-	                Set @id_evento_estado = @id_evento_estado + 1
-                End
-
-                Select 
-	                T.id_evento_estado,
-					T.grupo_evento,
-	                T.decricao,
-	                T.cor,
-	                SUM(T.Qtd) Qtd
-                From #TMP T
-                Group By T.id_evento_estado,
-	                T.grupo_evento,
-					T.decricao,
-	                T.cor
-                Order By T.id_evento_estado,
-	                T.cor Desc
-
-                Drop Table #TMP
-
-            ");
-
-            // Use the explicit type argument for SqlQueryRaw
-            var query = _dbContext.Database.SqlQueryRaw<ResumoFKSViewModel>(sql.ToString());
-
-            // If you want to execute and get the results as a list:
-            return await query.ToListAsync();
+            return await _dbContext.Database.SqlQueryRaw<ResumoFKSViewModel>(sql).ToListAsync();
         }
 
         public async Task<IActionResult> Simulador()
