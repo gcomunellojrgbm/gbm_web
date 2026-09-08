@@ -1,4 +1,4 @@
-﻿using Grupo_Beira_Mar_Web_Application.Data;
+using Grupo_Beira_Mar_Web_Application.Data;
 using Grupo_Beira_Mar_Web_Application.DataModels;
 using Grupo_Beira_Mar_Web_Application.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -94,38 +94,62 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
             return View(eventosPendentes);
         }
 
+        private sealed class EventoPendenteSqlRow
+        {
+            public int IdEvento { get; set; }
+            public string ReceptoraNome { get; set; }
+            public string Codigo { get; set; }
+            public string Particao { get; set; }
+            public string NomeCliente { get; set; }
+            public int IdCliente { get; set; }
+            public DateTime? DataEvento { get; set; }
+            public string CodigoEvento { get; set; }
+            public string DescricaoEvento { get; set; }
+            public bool DisparaSom { get; set; }
+        }
+
         private async Task<List<EventoIndexViewModel>> BuscaEventosPendentes()
         {
-            // Modificado para usar JOINs explícitos e um ViewModel específico para a listagem
-            var eventos = await (from Evento in _dbContext.Evento
-                                 join Cliente in _dbContext.Cliente
-                                    on Evento.IdCliente equals Cliente.IdCliente //into cGroup
-                                 join Receptora in _dbContext.Receptora
-                                    on Cliente.IdReceptora equals Receptora.IdReceptora
-                                 join EventoMonitoramento in _dbContext.EventoMonitoramento
-                                    on Evento.IdEvento equals EventoMonitoramento.IdEvento //into emGroup
-                                 join ReceptoraAcao in _dbContext.ReceptoraAcao
-                                    on Receptora.IdReceptora equals ReceptoraAcao.IdReceptora
-                                 join EventoEstadoAcao in _dbContext.EventoEstadoAcao
-                                    on Evento.Evento1 equals EventoEstadoAcao.CodigoEvento
-                                 where EventoMonitoramento.Concluido == false
-                                    && ReceptoraAcao.IdEventoEstadoAcao == EventoEstadoAcao.Id
-                                    && ReceptoraAcao.GeraAtendimento == true
-                                 orderby Evento.DataHora descending
-                                 select new EventoIndexViewModel
-                                 {
-                                     IdEvento = Evento.IdEvento,
-                                     ReceptoraNome = Receptora.Nome,
-                                     NumeroEvento = Evento.IdEvento,
-                                     Conta = Cliente.Codigo + (String.IsNullOrEmpty(Cliente.Particao) ? "" : $" - {Cliente.Particao}"),
-                                     NomeCliente = Cliente.Nome, // Obtém o nome do cliente através do join
-                                     IdCliente = Cliente.IdCliente, // Obtém o nome do cliente através do join
-                                     DataEvento = Evento.DataHora,
-                                     TipoEvento = $"{Evento.Evento1} - {EventoEstadoAcao.Decricao}", // Mapeado para Tipo Evento na tela
-                                     DisparaSom = ReceptoraAcao != null ? ReceptoraAcao.DisparaSom : false
-                                 })
-                                 .Take(1000) // Limita para fins de demonstração e performance
-                                 .ToListAsync();
+            const int limite = 1000;
+            // Materializa diretamente: compor LINQ sobre este SQL colocaria o hint em uma subconsulta.
+            // O hint evita o plano com buscas repetidas causado pelo row goal do TOP.
+            var registros = await _dbContext.Database.SqlQuery<EventoPendenteSqlRow>($"""
+                SELECT TOP ({limite})
+                    e.id_evento AS IdEvento,
+                    r.nome AS ReceptoraNome,
+                    c.codigo AS Codigo,
+                    c.Particao,
+                    c.nome AS NomeCliente,
+                    c.id_cliente AS IdCliente,
+                    e.data_hora AS DataEvento,
+                    e.evento AS CodigoEvento,
+                    e1.decricao AS DescricaoEvento,
+                    r0.dispara_som AS DisparaSom
+                FROM dbo.evento AS e
+                INNER JOIN dbo.cliente AS c ON e.IdCliente = c.id_cliente
+                INNER JOIN dbo.receptora AS r ON c.id_receptora = r.IdReceptora
+                INNER JOIN dbo.evento_monitoramento AS em ON e.id_evento = em.id_evento
+                INNER JOIN dbo.receptora_acao AS r0 ON r.IdReceptora = r0.id_receptora
+                INNER JOIN dbo.evento_estado_acao AS e1 ON e.evento = e1.cod_evento
+                WHERE em.concluido = CAST(0 AS bit)
+                  AND r0.id_evento_estado_acao = e1.id
+                  AND r0.gera_atendimento = CAST(1 AS bit)
+                ORDER BY e.data_hora DESC
+                OPTION (USE HINT('DISABLE_OPTIMIZER_ROWGOAL'))
+                """).ToListAsync();
+
+            var eventos = registros.Select(registro => new EventoIndexViewModel
+            {
+                IdEvento = registro.IdEvento,
+                NumeroEvento = registro.IdEvento,
+                ReceptoraNome = registro.ReceptoraNome,
+                Conta = registro.Codigo + (String.IsNullOrEmpty(registro.Particao) ? "" : $" - {registro.Particao}"),
+                NomeCliente = registro.NomeCliente,
+                IdCliente = registro.IdCliente,
+                DataEvento = registro.DataEvento,
+                TipoEvento = $"{registro.CodigoEvento} - {registro.DescricaoEvento}",
+                DisparaSom = registro.DisparaSom
+            }).ToList();
 
             ViewData["Title"] = "Consulta de Eventos Pendentes";
 
