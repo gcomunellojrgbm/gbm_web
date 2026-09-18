@@ -602,8 +602,7 @@ namespace Grupo_Beira_Mar_Web_Application.Data
 
                 entity.Property(e => e.ObsContato)
                     .HasColumnName("obs_contato")
-                    .HasMaxLength(300)
-                    .IsUnicode(false);
+                    .HasColumnType("nvarchar(max)");
 
                 entity.Property(e => e.ProximidadeContato)
                     .HasColumnName("proximidade_contato")

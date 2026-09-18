@@ -176,19 +176,13 @@ namespace Grupo_Beira_Mar_Web_Application.Controllers
 
             await _dbContext.SaveChangesAsync(); // salva para obter IdCliente se novo
 
+            // Os campos retirados do formulário mantêm seus valores existentes.
             // DetalheCliente
             detalhe.IdCliente = cliente.IdCliente;
-            detalhe.Autorizacao = model.Autorizacao;
-            detalhe.SenhaContra = model.SenhaContra;
-            detalhe.Senha = model.Senha;
             detalhe.Chaves = model.Chaves;
-            detalhe.Telefone2 = model.Telefone2;
-            detalhe.Telefone3 = model.Telefone3;
             detalhe.DataCadastro = model.DataCadastro;
             detalhe.IdTipoCliente = model.IdTipoCliente;
             detalhe.Endereco2 = model.Endereco2;
-            detalhe.Cidade2 = model.Cidade2;
-            detalhe.Cpf = model.Cpf;
 
             await _dbContext.SaveChangesAsync();
 

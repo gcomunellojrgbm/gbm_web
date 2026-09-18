@@ -360,9 +360,7 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                         .HasColumnName("nome_contato");
 
                     b.Property<string>("ObsContato")
-                        .HasMaxLength(300)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(300)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("obs_contato");
 
                     b.Property<string>("Particao")
