@@ -47,14 +47,12 @@ namespace Grupo_Beira_Mar_Web_Application.ViewModels
         public string Autorizacao { get; set; }
         public string SenhaContra { get; set; }
         public string Senha { get; set; }
-        [StringLength(20, ErrorMessage = "O campo {0} deve ter no máximo {1} caracteres.")]
         public string Chaves { get; set; }
         public string Telefone2 { get; set; }
         public string Telefone3 { get; set; }
         [StringLength(12, ErrorMessage = "O campo {0} deve ter no máximo {1} caracteres.")]
         public string DataCadastro { get; set; }
         public int? IdTipoCliente { get; set; }
-        [StringLength(50, ErrorMessage = "O campo {0} deve ter no máximo {1} caracteres.")]
         public string Endereco2 { get; set; }
         public string Cidade2 { get; set; }
         public string Cpf { get; set; }

@@ -997,9 +997,7 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                         .HasColumnName("autorizacao");
 
                     b.Property<string>("Chaves")
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("chaves");
 
                     b.Property<string>("Cidade2")
@@ -1021,9 +1019,7 @@ namespace Grupo_Beira_Mar_Web_Application.Data.Migrations
                         .HasColumnName("data_cadastro");
 
                     b.Property<string>("Endereco2")
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("endereco2");
 
                     b.Property<int>("IdCliente")

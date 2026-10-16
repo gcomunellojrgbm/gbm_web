@@ -1057,8 +1057,7 @@ namespace Grupo_Beira_Mar_Web_Application.Data
 
                 entity.Property(e => e.Chaves)
                     .HasColumnName("chaves")
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                    .HasColumnType("nvarchar(max)");
 
                 entity.Property(e => e.Cidade2)
                     .HasColumnName("cidade2")
@@ -1077,8 +1076,7 @@ namespace Grupo_Beira_Mar_Web_Application.Data
 
                 entity.Property(e => e.Endereco2)
                     .HasColumnName("endereco2")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .HasColumnType("nvarchar(max)");
 
                 entity.Property(e => e.IdCliente).HasColumnName("id_cliente");
 
