@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Monitoramento do Servidor";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h4 class="mb-0">@ViewData["Title"]</h4>
+            <span id="servidor-status" class="badge bg-secondary" role="status">Conectando...</span>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Mensagens mais recentes primeiro. Horário local do navegador. Exibição das últimas 1.000 mensagens recebidas nesta página, sem histórico após recarregar.</p>
+            <p id="servidor-aviso" class="text-warning" role="status" hidden></p>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <caption>Intervalo em segundos desde a mensagem válida anterior. A primeira mensagem de cada conexão não possui intervalo.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Data e hora do recebimento</th>
+                            <th scope="col">Intervalo (s)</th>
+                            <th scope="col">ID Receptora</th>
+                            <th scope="col">Código Cliente</th>
+                            <th scope="col">Partição</th>
+                            <th scope="col">Evento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="servidor-mensagens">
+                        <tr id="servidor-vazio"><td colspan="6" class="text-center text-muted">Aguardando mensagens...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/monitoramento-servidor.js" asp-append-version="true"></script>
+}
